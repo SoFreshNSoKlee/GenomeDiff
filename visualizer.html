@@ -3,173 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GenomeDiff — 3D Visualizer</title>
+<title>GenomeDiff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-  html, body {
-    width: 100%; height: 100%;
-    overflow: hidden;
-    background: #000;
-    font-family: 'SF Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
-  }
+html, body {
+  width:100%; height:100%; overflow:hidden;
+  background:#000;
+  font-family:'Share Tech Mono', 'Consolas', monospace;
+}
 
-  /* ── Drop zone ──────────────────────────────────────────────────────────── */
-  #drop-zone {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100;
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 14px;
-    padding: 52px 72px;
-    text-align: center;
-    cursor: pointer;
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    transition: border-color 0.25s, box-shadow 0.25s;
-    user-select: none;
-  }
-  #drop-zone:hover, #drop-zone.drag-over {
-    border-color: rgba(0,170,255,0.55);
-    box-shadow: 0 0 40px rgba(0,140,255,0.12);
-  }
-  #drop-zone h2 {
-    font-size: 1.05rem;
-    font-weight: 400;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.75);
-    margin-bottom: 16px;
-  }
-  #drop-zone p {
-    font-size: 0.78rem;
-    color: rgba(255,255,255,0.35);
-    letter-spacing: 0.1em;
-    line-height: 2;
-  }
-  #drop-zone strong { color: rgba(255,255,255,0.55); font-weight: 400; }
-  #drop-zone.hidden { display: none; }
+/* ── Drop zone ───────────────────────────────────────────────────────────── */
+#drop-zone {
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  z-index:100;
+  border:1px solid rgba(125,234,19,0.18);
+  border-radius:14px;
+  padding:52px 72px;
+  text-align:center;
+  cursor:pointer;
+  background:rgba(0,0,0,0.84);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  transition:all 0.22s;
+  user-select:none;
+}
+#drop-zone:hover, #drop-zone.drag-over {
+  border-color:rgba(125,234,19,0.55);
+  box-shadow:0 0 55px rgba(125,234,19,0.07);
+}
+#drop-zone h2 {
+  font-family:'Orbitron', monospace;
+  font-size:1.05rem; font-weight:500;
+  letter-spacing:0.32em; text-transform:uppercase;
+  color:rgba(255,255,255,0.78); margin-bottom:20px;
+}
+#drop-zone p {
+  font-size:0.72rem; color:rgba(255,255,255,0.28);
+  letter-spacing:0.12em; line-height:2.3;
+}
+#drop-zone strong { color:rgba(125,234,19,0.65); font-weight:normal; }
+#drop-zone.hidden { display:none; }
 
-  /* ── HUD overlay ────────────────────────────────────────────────────────── */
-  #hud {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 50;
-  }
-  #hud.hidden { display: none; }
+/* ── HUD ─────────────────────────────────────────────────────────────────── */
+#hud { position:fixed; inset:0; pointer-events:none; z-index:50; }
+#hud.hidden { display:none; }
 
-  #hud-title {
-    position: absolute;
-    top: 32px; left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    white-space: nowrap;
-  }
-  #hud-title strong {
-    display: block;
-    font-size: 0.95rem;
-    font-weight: 400;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.82);
-    margin-bottom: 5px;
-  }
-  #hud-title span {
-    font-size: 0.62rem;
-    letter-spacing: 0.18em;
-    color: rgba(255,255,255,0.28);
-    text-transform: uppercase;
-  }
+/* Headline — top center */
+#hud-headline {
+  position:absolute; top:36px; left:50%;
+  transform:translateX(-50%);
+  text-align:center; white-space:nowrap;
+}
+#hud-headline .species {
+  display:block;
+  font-family:'Orbitron', monospace;
+  font-size:1.6rem; font-weight:700;
+  letter-spacing:0.12em; text-transform:uppercase;
+  color:rgba(255,255,255,0.92);
+}
+.x-sep { color:#7DEA13; margin:0 0.5em; opacity:0.9; }
+#hud-headline .sub {
+  display:block; margin-top:9px;
+  font-size:0.56rem; letter-spacing:0.24em;
+  color:rgba(255,255,255,0.18); text-transform:uppercase;
+}
 
-  #hud-stats {
-    position: absolute;
-    bottom: 36px; left: 36px;
-    font-size: 0.62rem;
-    letter-spacing: 0.1em;
-    line-height: 2.1;
-    text-transform: uppercase;
-  }
-  .stat-identity { color: rgba(255,255,255,0.55); }
-  .stat-match    { color: rgba(0, 170, 255, 0.65); }
-  .stat-mismatch { color: rgba(255, 90, 30,  0.75); }
-  .stat-gap      { color: rgba(130, 60, 220, 0.6); }
+/* Stats — bottom left */
+#hud-stats {
+  position:absolute; bottom:44px; left:44px;
+}
+#hud-identity {
+  font-family:'Orbitron', monospace;
+  font-size:6.2rem; font-weight:700;
+  line-height:1; letter-spacing:-0.02em;
+  color:rgba(255,255,255,0.9);
+}
+#hud-identity-label {
+  font-size:0.55rem; letter-spacing:0.34em;
+  color:rgba(255,255,255,0.2); text-transform:uppercase;
+  margin-top:4px; margin-bottom:20px;
+}
+.stat-row { font-size:0.63rem; letter-spacing:0.12em; line-height:2.1; text-transform:uppercase; }
+.stat-match    { color:rgba(125,234,19,0.65); }
+.stat-mismatch { color:rgba(255,90,30,0.72); }
+.stat-gap      { color:rgba(130,60,220,0.62); }
 
-  #hud-legend {
-    position: absolute;
-    bottom: 36px; right: 36px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-end;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.3);
-  }
-  .legend-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
+/* Legend — bottom right */
+#hud-legend {
+  position:absolute; bottom:44px; right:44px;
+  display:flex; flex-direction:column;
+  gap:8px; align-items:flex-end;
+  pointer-events:all;
+}
+.legend-item {
+  display:flex; align-items:center; gap:10px;
+  font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase;
+  color:rgba(255,255,255,0.42);
+  cursor:pointer; padding:5px 10px;
+  border:1px solid transparent; border-radius:5px;
+  transition:all 0.15s; user-select:none;
+}
+.legend-item:hover { color:rgba(255,255,255,0.75); border-color:rgba(255,255,255,0.1); }
+.legend-item.muted { color:rgba(255,255,255,0.16); }
+.legend-item.muted .legend-dot { opacity:0.18 !important; box-shadow:none !important; }
+.legend-dot {
+  width:7px; height:7px; border-radius:50%;
+  flex-shrink:0; transition:opacity 0.2s, box-shadow 0.2s;
+}
+.key-hint {
+  font-size:0.5rem; letter-spacing:0.16em; text-transform:uppercase;
+  color:rgba(255,255,255,0.13); cursor:pointer;
+  padding:3px 10px; margin-top:2px;
+  transition:color 0.15s; pointer-events:all;
+}
+.key-hint:hover { color:rgba(255,255,255,0.3); }
 
-  /* ── Hint (mouse instruction) ───────────────────────────────────────────── */
-  #hint {
-    position: absolute;
-    bottom: 36px; left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.58rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.18);
-    white-space: nowrap;
-    transition: opacity 1s;
-  }
+/* Load button */
+#load-btn {
+  position:fixed; top:28px; right:32px; z-index:100;
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:5px; color:rgba(255,255,255,0.22);
+  padding:7px 15px; font-size:0.57rem;
+  letter-spacing:0.16em; text-transform:uppercase;
+  cursor:pointer; font-family:'Share Tech Mono', monospace;
+  display:none; transition:all 0.2s;
+}
+#load-btn:hover { border-color:rgba(125,234,19,0.3); color:rgba(125,234,19,0.65); }
 
-  /* ── Load button ────────────────────────────────────────────────────────── */
-  #load-btn {
-    position: fixed;
-    top: 26px; right: 30px;
-    z-index: 100;
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 6px;
-    color: rgba(255,255,255,0.3);
-    padding: 7px 15px;
-    font-size: 0.6rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: inherit;
-    pointer-events: all;
-    display: none;
-  }
-  #load-btn:hover {
-    border-color: rgba(0,170,255,0.45);
-    color: rgba(0,170,255,0.8);
-  }
+/* Progress */
+#progress {
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  z-index:200; font-family:'Share Tech Mono', monospace;
+  font-size:0.65rem; letter-spacing:0.3em; text-transform:uppercase;
+  color:rgba(125,234,19,0.45); display:none;
+}
 
-  /* ── Progress ───────────────────────────────────────────────────────────── */
-  #progress {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 200;
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.35);
-    display: none;
-  }
+/* Canvas cursor */
+canvas { cursor:grab; display:block; }
+canvas.dragging { cursor:grabbing; }
 </style>
 </head>
 <body>
@@ -178,32 +157,42 @@
 <div id="drop-zone">
   <h2>GenomeDiff</h2>
   <p>Drop <strong>*.json</strong> here or click to browse<br>
-     <span style="opacity:0.6">generated by fetch_align.py</span></p>
+  <span style="opacity:0.45">generated by fetch_align.py</span></p>
   <input type="file" id="file-input" accept=".json" style="display:none">
 </div>
 
 <!-- HUD -->
 <div id="hud" class="hidden">
-  <div id="hud-title">
-    <strong id="hud-label">—</strong>
-    <span id="hud-species">—</span>
+  <div id="hud-headline">
+    <span class="species">
+      <span id="sp-a">—</span><span class="x-sep">×</span><span id="sp-b">—</span>
+    </span>
+    <span class="sub" id="hud-sub">—</span>
   </div>
-  <div id="hud-stats"></div>
+
+  <div id="hud-stats">
+    <div id="hud-identity">—</div>
+    <div id="hud-identity-label">Identity</div>
+    <div class="stat-row stat-match"    id="stat-m">—</div>
+    <div class="stat-row stat-mismatch" id="stat-mm">—</div>
+    <div class="stat-row stat-gap"      id="stat-g">—</div>
+  </div>
+
   <div id="hud-legend">
-    <div class="legend-item">
+    <div class="legend-item" id="tog-match" data-type="match">
       <span>Match</span>
-      <span class="legend-dot" style="background:#00aaff;box-shadow:0 0 7px #00aaff"></span>
+      <span class="legend-dot" style="background:#7DEA13;box-shadow:0 0 8px #7DEA13"></span>
     </div>
-    <div class="legend-item">
+    <div class="legend-item" id="tog-mismatch" data-type="mismatch">
       <span>Mismatch</span>
-      <span class="legend-dot" style="background:#ff5520;box-shadow:0 0 7px #ff5520"></span>
+      <span class="legend-dot" style="background:#ff5520;box-shadow:0 0 8px #ff5520"></span>
     </div>
-    <div class="legend-item">
+    <div class="legend-item" id="tog-gap" data-type="gap">
       <span>Gap</span>
-      <span class="legend-dot" style="background:#7733dd;box-shadow:0 0 5px #7733dd"></span>
+      <span class="legend-dot" style="background:#7733dd;box-shadow:0 0 6px #7733dd"></span>
     </div>
+    <div class="key-hint" id="toggle-all-hint">[D] &nbsp;toggle all</div>
   </div>
-  <div id="hint">move mouse to rotate &nbsp;·&nbsp; center to stop</div>
 </div>
 
 <button id="load-btn">Load file</button>
@@ -211,48 +200,77 @@
 
 <script>
 // ─────────────────────────────────────────────────────────────────────────────
+// GLSL Shaders
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Morphs between sphere position (base) and random scatter position via uBlend.
+// gl_PointSize scales by device pixel ratio for retina sharpness.
+const VERT = `
+  attribute vec3 scatterPos;
+  uniform float uBlend;
+  uniform float uSize;
+  uniform float uDPR;
+
+  void main() {
+    vec3 p     = mix(position, scatterPos, uBlend);
+    vec4 mv    = modelViewMatrix * vec4(p, 1.0);
+    gl_PointSize = uSize * uDPR;
+    gl_Position  = projectionMatrix * mv;
+  }
+`;
+
+// Exponential radial glow — bright white-hot core fading to point color.
+const FRAG = `
+  uniform vec3  uColor;
+  uniform float uOpacity;
+
+  void main() {
+    float d = length(gl_PointCoord - vec2(0.5)) * 2.0; // 0=center, 1=edge
+    if (d > 1.0) discard;
+    float s   = exp(-d * 2.6);                          // exponential falloff
+    vec3  col = mix(uColor, vec3(1.0), s * 0.48);       // white-hot core
+    gl_FragColor = vec4(col, s * uOpacity);
+  }
+`;
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Three.js — renderer, scene, camera
 // ─────────────────────────────────────────────────────────────────────────────
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const DPR = Math.min(window.devicePixelRatio, 2);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(DPR);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x000000, 1);
-renderer.domElement.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;';
 document.body.insertBefore(renderer.domElement, document.body.firstChild);
 
 const scene  = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.01, 200);
-camera.position.set(0, 0, 3.0);
+camera.position.set(0, 0, 3.2);
 
-// All point clouds live inside this pivot so we rotate as one unit
+// Pivot — the whole genome cloud rotates as one unit
 const pivot = new THREE.Group();
-pivot.rotation.x = -0.28;   // initial tilt to reveal 3D depth
+pivot.rotation.x = -0.25;
 scene.add(pivot);
 
-// Subtle star-field background for depth context
-(function buildStarField() {
-  const N = 1800;
-  const pos = new Float32Array(N * 3);
+// Distant star field for spatial context
+(function buildStars() {
+  const N = 1600, pos = new Float32Array(N * 3);
   for (let i = 0; i < N; i++) {
     const theta = Math.random() * Math.PI * 2;
     const phi   = Math.acos(2 * Math.random() - 1);
-    const r     = 8 + Math.random() * 12;
+    const r     = 9 + Math.random() * 14;
     pos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
     pos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
     pos[i*3+2] = r * Math.cos(phi);
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  const mat = new THREE.PointsMaterial({
-    color: 0xffffff,
-    size: 0.03,
-    transparent: true,
-    opacity: 0.25,
-    sizeAttenuation: true,
-    depthWrite: false,
-  });
-  scene.add(new THREE.Points(geo, mat));
+  scene.add(new THREE.Points(geo, new THREE.PointsMaterial({
+    color: 0xffffff, size: 0.025, transparent: true, opacity: 0.18,
+    sizeAttenuation: true, depthWrite: false,
+  })));
 })();
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -262,170 +280,231 @@ scene.add(pivot);
 function hilbertD2XY(order, d) {
   let x = 0, y = 0;
   for (let s = 1; s < (1 << order); s <<= 1) {
-    const rx = (d >> 1) & 1;
-    const ry = (d ^ rx) & 1;
+    const rx = (d >> 1) & 1, ry = (d ^ rx) & 1;
     if (ry === 0) {
-      if (rx === 1) { x = s - 1 - x; y = s - 1 - y; }
+      if (rx === 1) { x = s-1-x; y = s-1-y; }
       [x, y] = [y, x];
     }
-    x += s * rx;
-    y += s * ry;
-    d >>= 2;
+    x += s * rx;  y += s * ry;  d >>= 2;
   }
   return [x, y];
 }
 
 function buildHilbertLUT(order) {
-  const n     = 1 << order;
-  const total = n * n;
-  const lut   = new Int32Array(total * 2);
+  const n = 1 << order, total = n * n;
+  const lut = new Int32Array(total * 2);
   for (let d = 0; d < total; d++) {
     const [x, y] = hilbertD2XY(order, d);
-    lut[d * 2]     = x;
-    lut[d * 2 + 1] = y;
+    lut[d*2] = x;  lut[d*2+1] = y;
   }
   return lut;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Build & add point cloud from alignment data
+// Point cloud
 // ─────────────────────────────────────────────────────────────────────────────
 
-let clouds = [];
+const SPHERE_R = 1.18;
 
-function disposeCloud(c) {
-  if (!c) return;
-  c.geometry.dispose();
-  c.material.dispose();
-  pivot.remove(c);
+// Per-type config
+const CFG = {
+  match:    { color: new THREE.Color(0x7DEA13), size: 4.0, opacity: 0.70 },
+  mismatch: { color: new THREE.Color(0xff5520), size: 7.0, opacity: 1.00 },
+  gap:      { color: new THREE.Color(0x7733dd), size: 3.5, opacity: 0.55 },
+};
+
+let cloudObjects = {};   // type → THREE.Points
+let cloudMats    = {};   // type → ShaderMaterial (for uniform access)
+let edgeBlend    = 0;    // current morph value (0 = sphere, 1 = scattered)
+
+// Visibility toggle state
+const vis = { match: true, mismatch: true, gap: true };
+
+function disposeAll() {
+  Object.values(cloudObjects).forEach(c => {
+    if (!c) return;
+    c.geometry.dispose();
+    c.material.dispose();
+    pivot.remove(c);
+  });
+  cloudObjects = {};  cloudMats = {};
 }
 
 function buildPointCloud(data) {
-  clouds.forEach(disposeCloud);
-  clouds = [];
+  disposeAll();
+  edgeBlend = 0;
 
   const positions = data.positions;
   const posLen    = positions.length;
-
-  const ORDER      = 7;          // 128×128 = 16 384 Hilbert cells
-  const GRID_N     = 1 << ORDER;
-  const TOTAL_CELLS = GRID_N * GRID_N;
+  const ORDER = 7, GRID_N = 1 << ORDER, TOTAL = GRID_N * GRID_N;
 
   setProgress('Building Hilbert LUT…');
   const lut = buildHilbertLUT(ORDER);
 
-  // --- count types for pre-allocation ---
+  // Count per type for pre-allocation
   let nM = 0, nMM = 0, nG = 0;
   for (let i = 0; i < posLen; i++) {
     const t = positions[i].type;
-    if (t === 'match') nM++;
-    else if (t === 'mismatch') nMM++;
-    else nG++;
+    if (t === 'match') nM++; else if (t === 'mismatch') nMM++; else nG++;
   }
 
-  const matchBuf    = new Float32Array(nM  * 3);
-  const mismatchBuf = new Float32Array(nMM * 3);
-  const gapBuf      = new Float32Array(nG  * 3);
+  const sphereBuf  = { match: new Float32Array(nM*3),  mismatch: new Float32Array(nMM*3), gap: new Float32Array(nG*3) };
+  const scatterBuf = { match: new Float32Array(nM*3),  mismatch: new Float32Array(nMM*3), gap: new Float32Array(nG*3) };
+  const idx        = { match: 0,                        mismatch: 0,                        gap: 0 };
 
-  let mi = 0, mmi = 0, gi = 0;
+  // Deterministic fast PRNG (xorshift32) for reproducible scatter
+  let seed = 0xdeadbeef;
+  const rand = () => {
+    seed ^= seed << 13;  seed ^= seed >> 17;  seed ^= seed << 5;
+    return (seed >>> 0) / 0x100000000;
+  };
 
-  setProgress('Placing points in 3D…');
-
-  // Seeded pseudo-random for deterministic jitter (fast, good enough)
-  let seed = 0x9e3779b9;
-  function rand() {
-    seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5;
-    return (seed >>> 0) / 0xffffffff;
-  }
+  setProgress('Mapping genome to sphere…');
 
   for (let i = 0; i < posLen; i++) {
-    const cellIdx = Math.min(Math.floor(i * TOTAL_CELLS / posLen), TOTAL_CELLS - 1);
-    const gx = lut[cellIdx * 2];
-    const gy = lut[cellIdx * 2 + 1];
+    const cellIdx = Math.min(Math.floor(i * TOTAL / posLen), TOTAL - 1);
+    const gx = lut[cellIdx * 2], gy = lut[cellIdx * 2 + 1];
 
-    // Hilbert grid → [-1, 1]
-    const nx = (gx / GRID_N) * 2.0 - 1.0;
-    const ny = (gy / GRID_N) * 2.0 - 1.0;
+    // Hilbert grid position → spherical coordinates
+    const u     = gx / GRID_N;           // longitude 0..1
+    const v     = gy / GRID_N;           // latitude  0..1
+    const theta = u * Math.PI * 2;
+    const phi   = v * Math.PI;
+    const sr    = SPHERE_R + (rand() - 0.5) * 0.025;
 
-    // Z: smooth wave terrain — reveals 3D depth on rotation
-    const waveZ = 0.16 * Math.sin(nx * 3.6) * Math.cos(ny * 2.8)
-                + 0.06 * Math.cos(nx * 7.0 + ny * 5.0);
+    const sx = sr * Math.sin(phi) * Math.cos(theta);
+    const sy = sr * Math.cos(phi);
+    const sz = sr * Math.sin(phi) * Math.sin(theta);
+
+    // Scatter: random point in a larger sphere shell
+    const scatR     = 2.2 + rand() * 2.2;
+    const scatTheta = rand() * Math.PI * 2;
+    const scatPhi   = Math.acos(2 * rand() - 1);
+    const scx = scatR * Math.sin(scatPhi) * Math.cos(scatTheta);
+    const scy = scatR * Math.cos(scatPhi);
+    const scz = scatR * Math.sin(scatPhi) * Math.sin(scatTheta);
 
     const type = positions[i].type;
-
-    const SCALE = 1.28;
-
-    if (type === 'match') {
-      const jx = (rand() - 0.5) * 0.004;
-      const jy = (rand() - 0.5) * 0.004;
-      const jz = (rand() - 0.5) * 0.012;
-      matchBuf[mi++] = nx * SCALE + jx;
-      matchBuf[mi++] = ny * SCALE + jy;
-      matchBuf[mi++] = waveZ + jz;
-    } else if (type === 'mismatch') {
-      const jx = (rand() - 0.5) * 0.010;
-      const jy = (rand() - 0.5) * 0.010;
-      const jz = (rand() - 0.5) * 0.018;
-      mismatchBuf[mmi++] = nx * SCALE + jx;
-      mismatchBuf[mmi++] = ny * SCALE + jy;
-      mismatchBuf[mmi++] = waveZ + jz + 0.10;   // float above the match plane
-    } else {
-      const jx = (rand() - 0.5) * 0.004;
-      const jy = (rand() - 0.5) * 0.004;
-      const jz = (rand() - 0.5) * 0.010;
-      gapBuf[gi++] = nx * SCALE + jx;
-      gapBuf[gi++] = ny * SCALE + jy;
-      gapBuf[gi++] = waveZ + jz - 0.05;          // slightly behind
-    }
+    const i3 = idx[type];
+    sphereBuf [type][i3]   = sx;   sphereBuf [type][i3+1] = sy;   sphereBuf [type][i3+2] = sz;
+    scatterBuf[type][i3]   = scx;  scatterBuf[type][i3+1] = scy;  scatterBuf[type][i3+2] = scz;
+    idx[type] += 3;
   }
 
-  // Helper: build a THREE.Points object
-  function makeCloud(buf, hexColor, size, opacity) {
+  // Build a THREE.Points object per type
+  ['match', 'mismatch', 'gap'].forEach(type => {
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(buf, 3));
-    const mat = new THREE.PointsMaterial({
-      color:        hexColor,
-      size:         size,
-      transparent:  true,
-      opacity:      opacity,
-      blending:     THREE.AdditiveBlending,
-      depthWrite:   false,
-      sizeAttenuation: true,
+    geo.setAttribute('position',   new THREE.BufferAttribute(sphereBuf [type], 3));
+    geo.setAttribute('scatterPos', new THREE.BufferAttribute(scatterBuf[type], 3));
+
+    const c   = CFG[type];
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uColor:   { value: c.color },
+        uOpacity: { value: c.opacity },
+        uBlend:   { value: 0.0 },
+        uSize:    { value: c.size },
+        uDPR:     { value: DPR },
+      },
+      vertexShader:   VERT,
+      fragmentShader: FRAG,
+      transparent:    true,
+      depthWrite:     false,
+      blending:       THREE.AdditiveBlending,
     });
-    return new THREE.Points(geo, mat);
-  }
 
-  // Match  — electric blue,  small, medium opacity → dense glow
-  const cMatch    = makeCloud(matchBuf,    0x0099ff, 0.0075, 0.70);
-  // Mismatch — hot orange,   larger → visually pops
-  const cMismatch = makeCloud(mismatchBuf, 0xff4400, 0.0170, 1.00);
-  // Gap      — deep violet,  tiny, subtle
-  const cGap      = makeCloud(gapBuf,      0x7722ee, 0.0060, 0.55);
-
-  pivot.add(cMatch);
-  pivot.add(cMismatch);
-  pivot.add(cGap);
-  clouds = [cMatch, cMismatch, cGap];
+    const pts = new THREE.Points(geo, mat);
+    pivot.add(pts);
+    cloudObjects[type] = pts;
+    cloudMats   [type] = mat;
+  });
 
   setProgress('');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Mouse-driven rotation
+// Click-drag rotation (with inertia)
 // ─────────────────────────────────────────────────────────────────────────────
 
-let mouseNX = 0, mouseNY = 0;  // normalized [-1, 1] from window center
-let velX    = 0, velY    = 0;  // current angular velocity (radians/frame)
+let isDragging = false;
+let lastDragX  = 0, lastDragY = 0;
+let rotVelX    = 0, rotVelY   = 0;
 
-document.addEventListener('mousemove', (e) => {
-  mouseNX = (e.clientX / window.innerWidth  - 0.5) * 2.0;
-  mouseNY = (e.clientY / window.innerHeight - 0.5) * 2.0;
+renderer.domElement.addEventListener('mousedown', (e) => {
+  if (e.button !== 0) return;
+  isDragging = true;
+  lastDragX  = e.clientX;
+  lastDragY  = e.clientY;
+  rotVelX = rotVelY = 0;
+  renderer.domElement.classList.add('dragging');
 });
 
-// Dead-zone radius so the very center truly stops spinning
-const DEAD_ZONE  = 0.06;
-const MAX_SPEED  = 0.028;   // rad/frame at mouse edge (~100°/sec at 60fps)
-const LERP_ACCEL = 0.055;   // how quickly velocity tracks the mouse
+window.addEventListener('mouseup', () => {
+  isDragging = false;
+  renderer.domElement.classList.remove('dragging');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Mouse tracking — drag rotation + edge dispersion
+// ─────────────────────────────────────────────────────────────────────────────
+
+let mouseX = window.innerWidth  / 2;
+let mouseY = window.innerHeight / 2;
+
+window.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+
+  if (isDragging) {
+    const dx = e.clientX - lastDragX;
+    const dy = e.clientY - lastDragY;
+    rotVelY  = dx * 0.006;
+    rotVelX  = dy * 0.006;
+    pivot.rotation.y += rotVelY;
+    pivot.rotation.x += rotVelX;
+    lastDragX = e.clientX;
+    lastDragY = e.clientY;
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Edge dispersion factor — 0 at center, 1 near window edges
+// ─────────────────────────────────────────────────────────────────────────────
+
+const EDGE_BAND = 0.18;   // transition starts when cursor is within 18% of any edge
+
+function edgeFactor() {
+  const ex   = Math.min(mouseX / window.innerWidth,  1 - mouseX / window.innerWidth);
+  const ey   = Math.min(mouseY / window.innerHeight, 1 - mouseY / window.innerHeight);
+  const dist = Math.min(ex, ey);          // 0 at any edge, 0.5 at center
+  return 1 - Math.min(dist / EDGE_BAND, 1);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Visibility toggles
+// ─────────────────────────────────────────────────────────────────────────────
+
+function toggleType(type) {
+  vis[type] = !vis[type];
+  document.getElementById(`tog-${type}`).classList.toggle('muted', !vis[type]);
+}
+
+function toggleAll() {
+  const anyOn  = vis.match || vis.mismatch || vis.gap;
+  const newVal = !anyOn;
+  ['match', 'mismatch', 'gap'].forEach(t => {
+    vis[t] = newVal;
+    document.getElementById(`tog-${t}`).classList.toggle('muted', !newVal);
+  });
+}
+
+['match', 'mismatch', 'gap'].forEach(t => {
+  document.getElementById(`tog-${t}`).addEventListener('click', () => toggleType(t));
+});
+document.getElementById('toggle-all-hint').addEventListener('click', toggleAll);
+window.addEventListener('keydown', (e) => {
+  if (e.key.toLowerCase() === 'd') toggleAll();
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Render loop
@@ -434,19 +513,28 @@ const LERP_ACCEL = 0.055;   // how quickly velocity tracks the mouse
 function animate() {
   requestAnimationFrame(animate);
 
-  if (clouds.length > 0) {
-    // Dead-zone: if mouse is very close to center, target velocity is 0
-    const dist = Math.sqrt(mouseNX * mouseNX + mouseNY * mouseNY);
-    const factor = dist < DEAD_ZONE ? 0 : (dist - DEAD_ZONE) / (1 - DEAD_ZONE);
+  const hasClouds = Object.keys(cloudObjects).length > 0;
 
-    const targetY = (mouseNX / Math.max(dist, 0.001)) * factor * MAX_SPEED;
-    const targetX = (mouseNY / Math.max(dist, 0.001)) * factor * MAX_SPEED;
+  if (hasClouds) {
+    // Inertial rotation coast-down after drag release
+    if (!isDragging) {
+      rotVelX *= 0.92;
+      rotVelY *= 0.92;
+      pivot.rotation.x += rotVelX;
+      pivot.rotation.y += rotVelY;
+    }
 
-    velY += (targetY - velY) * LERP_ACCEL;
-    velX += (targetX - velX) * LERP_ACCEL;
+    // Smooth morph toward edge target
+    edgeBlend += (edgeFactor() - edgeBlend) * 0.04;
 
-    pivot.rotation.y += velY;
-    pivot.rotation.x += velX;
+    // Update uniforms
+    ['match', 'mismatch', 'gap'].forEach(t => {
+      const mat = cloudMats[t];
+      if (!mat) return;
+      mat.uniforms.uBlend.value = edgeBlend;
+      const targetOp = vis[t] ? CFG[t].opacity : 0.0;
+      mat.uniforms.uOpacity.value += (targetOp - mat.uniforms.uOpacity.value) * 0.08;
+    });
   }
 
   renderer.render(scene, camera);
@@ -482,27 +570,21 @@ function loadJSON(file) {
 
       buildPointCloud(data);
 
-      // Populate HUD
       const s = data.meta.stats;
-      document.getElementById('hud-label').textContent =
-        data.meta.label || (data.meta.pair_id || 'Genome Diff');
-      document.getElementById('hud-species').textContent =
-        `${data.meta.species_a.name}  ×  ${data.meta.species_b.name}`;
-
-      document.getElementById('hud-stats').innerHTML =
-        `<div class="stat-identity">${s.identity_pct}%&nbsp;&nbsp;identity</div>` +
-        `<div class="stat-match">▪ ${s.match.toLocaleString()}&nbsp;&nbsp;match</div>` +
-        `<div class="stat-mismatch">▪ ${s.mismatch.toLocaleString()}&nbsp;&nbsp;mismatch</div>` +
-        `<div class="stat-gap">▪ ${s.gap.toLocaleString()}&nbsp;&nbsp;gap</div>`;
+      document.getElementById('sp-a').textContent      = data.meta.species_a.name.toUpperCase();
+      document.getElementById('sp-b').textContent      = data.meta.species_b.name.toUpperCase();
+      document.getElementById('hud-sub').textContent   =
+        (data.meta.label || data.meta.pair_id || '').replace(/_/g, ' ')
+        + '  ·  ' + data.meta.alignment_length.toLocaleString() + ' bp';
+      document.getElementById('hud-identity').textContent = s.identity_pct + '%';
+      document.getElementById('stat-m') .textContent = '▪  ' + s.match    .toLocaleString() + '  match';
+      document.getElementById('stat-mm').textContent = '▪  ' + s.mismatch .toLocaleString() + '  mismatch';
+      document.getElementById('stat-g') .textContent = '▪  ' + s.gap      .toLocaleString() + '  gap';
 
       document.getElementById('drop-zone').classList.add('hidden');
       document.getElementById('hud').classList.remove('hidden');
       document.getElementById('load-btn').style.display = 'block';
-      document.title = `GenomeDiff — ${data.meta.label || ''}`;
-
-      // Fade hint out after 5s
-      const hint = document.getElementById('hint');
-      setTimeout(() => { hint.style.opacity = '0'; }, 5000);
+      document.title = `GenomeDiff — ${data.meta.species_a.name} × ${data.meta.species_b.name}`;
 
     } catch (err) {
       setProgress('');
@@ -512,35 +594,30 @@ function loadJSON(file) {
   reader.readAsText(file);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
 // Event wiring
-// ─────────────────────────────────────────────────────────────────────────────
-
-const dropZone = document.getElementById('drop-zone');
-
-dropZone.addEventListener('click',    () => document.getElementById('file-input').click());
-dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
-  const f = e.dataTransfer.files[0];
-  if (f) loadJSON(f);
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('click',    ()  => document.getElementById('file-input').click());
+dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', (e) => {
+  e.preventDefault();  dz.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];  if (f) loadJSON(f);
 });
-
 document.getElementById('file-input').addEventListener('change', (e) => {
   if (e.target.files[0]) loadJSON(e.target.files[0]);
 });
 
 document.getElementById('load-btn').addEventListener('click', () => {
-  clouds.forEach(disposeCloud);
-  clouds = [];
-  velX = velY = 0;
-  pivot.rotation.set(-0.28, 0, 0);
-  document.getElementById('drop-zone').classList.remove('hidden');
+  disposeAll();
+  rotVelX = rotVelY = edgeBlend = 0;
+  pivot.rotation.set(-0.25, 0, 0);
+  ['match', 'mismatch', 'gap'].forEach(t => {
+    vis[t] = true;
+    document.getElementById(`tog-${t}`).classList.remove('muted');
+  });
+  dz.classList.remove('hidden');
   document.getElementById('hud').classList.add('hidden');
   document.getElementById('load-btn').style.display = 'none';
-  document.getElementById('hint').style.opacity = '1';
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -554,7 +631,7 @@ function setProgress(msg) {
 }
 
 function yieldFrame() {
-  return new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
+  return new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
 }
 </script>
 </body>

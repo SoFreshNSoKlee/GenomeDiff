@@ -207,8 +207,8 @@ def main() -> None:
     sp_a = pair["species_a"]
     sp_b = pair["species_b"]
 
-    print(f"Species A : {sp_a['name']}  [{sp_a['accession']}]")
-    print(f"Species B : {sp_b['name']}  [{sp_b['accession']}]")
+    print(f"Species A : {sp_a['name']}  [{sp_a.get('accession', 'via search')}]")
+    print(f"Species B : {sp_b['name']}  [{sp_b.get('accession', 'via search')}]")
     print()
 
     # ── 2. Resolve accessions (direct or via esearch) then fetch ─────────────

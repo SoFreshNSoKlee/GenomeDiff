@@ -59,7 +59,7 @@
     {
       "id": "thylacine_vs_tasmanian_devil",
       "label": "Thylacine vs Tasmanian Devil",
-      "_note": "Thylacine NC_011944, Tasmanian Devil NC_017081 (both confirmed RefSeq).",
+      "_note": "Thylacine NC_011944 confirmed. NC_017081 returned 81kb (not mtDNA); Tasmanian Devil resolved via search_term.",
       "species_a": {
         "name": "Thylacine",
         "accession": "NC_011944",
@@ -67,7 +67,6 @@
       },
       "species_b": {
         "name": "Tasmanian Devil",
-        "accession": "NC_017081",
         "search_term": "Sarcophilus harrisii[Organism] mitochondrion complete genome"
       }
     }

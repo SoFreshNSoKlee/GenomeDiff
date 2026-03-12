@@ -1,0 +1,43 @@
+{
+  "_comment": "Add species pairs here. Each pair is fetched and aligned independently.",
+  "pairs": [
+    {
+      "id": "mammoth_vs_elephant",
+      "label": "Woolly Mammoth vs African Elephant",
+      "species_a": {
+        "name": "Woolly Mammoth",
+        "search_term": "Mammuthus primigenius[Organism] mitochondrion complete genome",
+        "accession": "NC_007596",
+        "color_match": "#2196F3",
+        "color_mismatch": "#FF5722",
+        "color_gap": "#9E9E9E"
+      },
+      "species_b": {
+        "name": "African Elephant",
+        "search_term": "Loxodonta africana[Organism] mitochondrion complete genome",
+        "accession": "NC_000934",
+        "color_match": "#2196F3",
+        "color_mismatch": "#FF5722",
+        "color_gap": "#9E9E9E"
+      }
+    }
+  ],
+  "_swap_example": {
+    "id": "human_vs_chimp",
+    "label": "Human vs Chimpanzee",
+    "species_a": {
+      "name": "Human",
+      "accession": "NC_012920",
+      "color_match": "#4CAF50",
+      "color_mismatch": "#F44336",
+      "color_gap": "#9E9E9E"
+    },
+    "species_b": {
+      "name": "Chimpanzee",
+      "accession": "NC_001643",
+      "color_match": "#4CAF50",
+      "color_mismatch": "#F44336",
+      "color_gap": "#9E9E9E"
+    }
+  }
+}

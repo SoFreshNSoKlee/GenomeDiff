@@ -17,16 +17,11 @@ html, body { width:100%; height:100%; overflow:hidden; background:#000; font-fam
   position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
   z-index:100; border:1px solid rgba(125,234,19,.18); border-radius:14px;
   padding:52px 72px; text-align:center; cursor:pointer;
-  background:rgba(0,0,0,.84); backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px); transition:all .22s; user-select:none;
+  background:rgba(0,0,0,.84); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  transition:all .22s; user-select:none;
 }
-#drop-zone:hover, #drop-zone.drag-over {
-  border-color:rgba(125,234,19,.55); box-shadow:0 0 55px rgba(125,234,19,.07);
-}
-#drop-zone h2 {
-  font-family:'Orbitron',monospace; font-size:1.05rem; font-weight:500;
-  letter-spacing:.32em; text-transform:uppercase; color:rgba(255,255,255,.78); margin-bottom:20px;
-}
+#drop-zone:hover, #drop-zone.drag-over { border-color:rgba(125,234,19,.55); box-shadow:0 0 55px rgba(125,234,19,.07); }
+#drop-zone h2 { font-family:'Orbitron',monospace; font-size:1.05rem; font-weight:500; letter-spacing:.32em; text-transform:uppercase; color:rgba(255,255,255,.78); margin-bottom:20px; }
 #drop-zone p { font-size:.72rem; color:rgba(255,255,255,.28); letter-spacing:.12em; line-height:2.3; }
 #drop-zone strong { color:rgba(125,234,19,.65); font-weight:normal; }
 #drop-zone.hidden { display:none; }
@@ -36,44 +31,43 @@ html, body { width:100%; height:100%; overflow:hidden; background:#000; font-fam
 #hud.hidden { display:none; }
 
 /* ── Headline ──────────────────────────────────────────────────────────── */
-#hud-headline {
-  position:absolute; top:28px; left:50%; transform:translateX(-50%);
-  text-align:center; white-space:nowrap;
-}
-#hud-headline .species {
-  display:block; font-family:'Orbitron',monospace; font-size:1.45rem; font-weight:700;
-  letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.92);
-}
+#hud-headline { position:absolute; top:28px; left:50%; transform:translateX(-50%); text-align:center; white-space:nowrap; }
+#hud-headline .species { display:block; font-family:'Orbitron',monospace; font-size:1.45rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.92); }
 .x-sep { color:#7DEA13; margin:0 .5em; opacity:.9; }
-#hud-headline .sub {
-  display:block; margin-top:7px; font-size:.54rem;
-  letter-spacing:.24em; color:rgba(255,255,255,.18); text-transform:uppercase;
-}
+#hud-headline .sub { display:block; margin-top:7px; font-size:.54rem; letter-spacing:.24em; color:rgba(255,255,255,.18); text-transform:uppercase; }
 
-/* ── Side panels shared ────────────────────────────────────────────────── */
+/* ── Side panels ───────────────────────────────────────────────────────── */
 .hud-panel {
   position:absolute; width:228px;
-  background:rgba(1,6,14,.84);
-  border:1px solid rgba(125,234,19,.1);
-  border-radius:8px; backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px); overflow:hidden;
+  background:rgba(1,6,14,.86); border:1px solid rgba(125,234,19,.1);
+  border-radius:8px; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  overflow:hidden; pointer-events:all;        /* ← panels intercept mouse events */
 }
 #panel-left  { left:22px;  top:50%; transform:translateY(-50%); }
 #panel-right { right:22px; top:50%; transform:translateY(-50%); }
 
-.psec { padding:10px 12px 10px; }
+.psec { padding:10px 12px; }
 .pdiv { height:1px; background:rgba(125,234,19,.07); margin:0 12px; }
-
 .ptitle {
-  font-family:'Orbitron',monospace; font-size:.46rem;
-  letter-spacing:.26em; text-transform:uppercase;
-  color:rgba(125,234,19,.6); margin-bottom:7px;
-  display:flex; justify-content:space-between; align-items:baseline;
+  font-family:'Orbitron',monospace; font-size:.46rem; letter-spacing:.26em;
+  text-transform:uppercase; color:rgba(125,234,19,.6); margin-bottom:7px;
+  display:flex; justify-content:space-between; align-items:center;
 }
-.psub { font-family:'Share Tech Mono',monospace; font-size:.46rem; letter-spacing:.1em; color:rgba(255,255,255,.18); }
+.ptitle-left { display:flex; flex-direction:column; gap:2px; }
+.psub { font-family:'Share Tech Mono',monospace; font-size:.44rem; letter-spacing:.1em; color:rgba(255,255,255,.18); }
 
-/* Canvases inside panels — CSS size; JS sets buffer size via DPR */
-.pcvs { display:block; width:100%; border-radius:3px; }
+/* ── Info button ───────────────────────────────────────────────────────── */
+.info-btn {
+  width:15px; height:15px; border-radius:50%;
+  border:1px solid rgba(125,234,19,.22); background:transparent;
+  color:rgba(125,234,19,.38); font-size:8px; font-style:italic; font-weight:700;
+  cursor:pointer; padding:0; line-height:1; flex-shrink:0;
+  transition:all .15s; font-family:Georgia,serif; display:flex; align-items:center; justify-content:center;
+}
+.info-btn:hover { background:rgba(125,234,19,.1); border-color:rgba(125,234,19,.65); color:rgba(125,234,19,.9); box-shadow:0 0 8px rgba(125,234,19,.15); }
+
+/* ── Canvases ──────────────────────────────────────────────────────────── */
+.pcvs { display:block; width:100%; border-radius:3px; cursor:crosshair; }
 #cvs-snp  { height:72px; }
 #cvs-heat { height:124px; }
 #cvs-dot  { height:168px; }
@@ -87,61 +81,94 @@ html, body { width:100%; height:100%; overflow:hidden; background:#000; font-fam
 .albl { color:rgba(255,255,255,.28); flex-shrink:0; width:26px; letter-spacing:.06em; }
 .abases { letter-spacing:.5px; }
 
+/* ── Tooltip ───────────────────────────────────────────────────────────── */
+#tooltip {
+  position:fixed; z-index:400; pointer-events:none;
+  background:rgba(0,5,14,.94); border:1px solid rgba(125,234,19,.18);
+  border-radius:6px; padding:9px 13px; font-family:'Share Tech Mono',monospace;
+  font-size:.58rem; letter-spacing:.08em; line-height:1.9;
+  color:rgba(255,255,255,.7); max-width:230px;
+  box-shadow:0 0 24px rgba(125,234,19,.06);
+  opacity:0; transition:opacity .1s; white-space:nowrap;
+}
+#tooltip.vis { opacity:1; }
+
+/* ── Modal ─────────────────────────────────────────────────────────────── */
+#modal-overlay {
+  position:fixed; inset:0; z-index:500;
+  background:rgba(0,0,0,.78); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .22s;
+}
+#modal-overlay.vis { opacity:1; pointer-events:all; }
+#modal {
+  width:460px; max-width:92vw; position:relative;
+  background:rgba(1,7,18,.97); border:1px solid rgba(125,234,19,.2);
+  border-top:2px solid rgba(125,234,19,.55); border-radius:10px;
+  padding:28px 30px 26px; font-family:'Share Tech Mono',monospace;
+  transform:translateY(12px); transition:transform .22s;
+}
+#modal-overlay.vis #modal { transform:translateY(0); }
+#modal-close {
+  position:absolute; top:14px; right:16px; background:transparent;
+  border:none; color:rgba(255,255,255,.3); font-size:1.2rem; cursor:pointer;
+  transition:color .15s; line-height:1; padding:2px 6px;
+}
+#modal-close:hover { color:rgba(125,234,19,.8); }
+#modal-badge {
+  display:inline-block; font-family:'Orbitron',monospace; font-size:.44rem;
+  letter-spacing:.22em; padding:2px 10px; border-radius:3px;
+  border:1px solid; margin-bottom:12px; text-transform:uppercase;
+}
+#modal-title {
+  font-family:'Orbitron',monospace; font-size:1.05rem; font-weight:700;
+  letter-spacing:.08em; color:rgba(255,255,255,.92); margin-bottom:14px;
+}
+#modal-body { font-size:.62rem; letter-spacing:.06em; line-height:2; color:rgba(255,255,255,.5); margin-bottom:16px; }
+#modal-body strong { color:rgba(255,255,255,.78); font-weight:normal; }
+#modal-body em { color:rgba(125,234,19,.7); font-style:normal; }
+#modal-divider { height:1px; background:rgba(125,234,19,.08); margin:16px 0; }
+#modal-key { display:flex; flex-direction:column; gap:7px; }
+.mkey { display:flex; align-items:center; gap:10px; font-size:.56rem; letter-spacing:.08em; color:rgba(255,255,255,.4); }
+.mkey-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
 /* ── Bottom-left stats ─────────────────────────────────────────────────── */
 #hud-stats { position:absolute; bottom:36px; left:36px; }
-#hud-identity {
-  font-family:'Orbitron',monospace; font-size:3rem; font-weight:700;
-  line-height:1; letter-spacing:-.01em; color:rgba(255,255,255,.9);
-}
-#hud-identity-label {
-  font-size:.52rem; letter-spacing:.34em; color:rgba(255,255,255,.2);
-  text-transform:uppercase; margin-top:3px; margin-bottom:14px;
-}
+#hud-identity { font-family:'Orbitron',monospace; font-size:3rem; font-weight:700; line-height:1; letter-spacing:-.01em; color:rgba(255,255,255,.9); }
+#hud-identity-label { font-size:.52rem; letter-spacing:.34em; color:rgba(255,255,255,.2); text-transform:uppercase; margin-top:3px; margin-bottom:14px; }
 .stat-row { font-size:.6rem; letter-spacing:.12em; line-height:2; text-transform:uppercase; }
 .stat-match    { color:rgba(125,234,19,.65); }
 .stat-mismatch { color:rgba(255,90,30,.72); }
 .stat-gap      { color:rgba(130,60,220,.62); }
 
 /* ── Legend ────────────────────────────────────────────────────────────── */
-#hud-legend {
-  position:absolute; bottom:36px; right:36px;
-  display:flex; flex-direction:column; gap:7px; align-items:flex-end;
-  pointer-events:all;
-}
-.legend-item {
-  display:flex; align-items:center; gap:9px;
-  font-size:.58rem; letter-spacing:.14em; text-transform:uppercase;
-  color:rgba(255,255,255,.42); cursor:pointer; padding:4px 9px;
-  border:1px solid transparent; border-radius:5px;
-  transition:all .15s; user-select:none;
-}
+#hud-legend { position:absolute; bottom:36px; right:36px; display:flex; flex-direction:column; gap:7px; align-items:flex-end; pointer-events:all; }
+.legend-item { display:flex; align-items:center; gap:9px; font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.42); cursor:pointer; padding:4px 9px; border:1px solid transparent; border-radius:5px; transition:all .15s; user-select:none; }
 .legend-item:hover { color:rgba(255,255,255,.75); border-color:rgba(255,255,255,.1); }
 .legend-item.muted { color:rgba(255,255,255,.16); }
 .legend-item.muted .legend-dot { opacity:.18!important; box-shadow:none!important; }
 .legend-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; transition:opacity .2s,box-shadow .2s; }
-.key-hint {
-  font-size:.48rem; letter-spacing:.16em; text-transform:uppercase;
-  color:rgba(255,255,255,.13); cursor:pointer; padding:3px 9px; margin-top:1px;
-  transition:color .15s; pointer-events:all;
-}
+.key-hint { font-size:.48rem; letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,.13); cursor:pointer; padding:3px 9px; margin-top:1px; transition:color .15s; pointer-events:all; }
 .key-hint:hover { color:rgba(255,255,255,.3); }
 
-/* ── Load button ───────────────────────────────────────────────────────── */
-#load-btn {
-  position:fixed; top:26px; right:28px; z-index:100; background:transparent;
-  border:1px solid rgba(255,255,255,.08); border-radius:5px; color:rgba(255,255,255,.22);
-  padding:7px 14px; font-size:.56rem; letter-spacing:.16em; text-transform:uppercase;
-  cursor:pointer; font-family:'Share Tech Mono',monospace; display:none; transition:all .2s;
+/* ── Ambient audio button ──────────────────────────────────────────────── */
+#audio-btn {
+  position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+  z-index:100; background:transparent; border:1px solid rgba(255,255,255,.07);
+  border-radius:20px; color:rgba(255,255,255,.2); padding:5px 20px;
+  font-size:.52rem; letter-spacing:.22em; text-transform:uppercase;
+  cursor:pointer; font-family:'Share Tech Mono',monospace; display:none;
+  transition:all .25s;
 }
-#load-btn:hover { border-color:rgba(125,234,19,.3); color:rgba(125,234,19,.65); }
+#audio-btn.active { border-color:rgba(125,234,19,.28); color:rgba(125,234,19,.55); }
+#audio-btn.active::before { content:'◉  '; }
+#audio-btn:not(.active)::before { content:'◎  '; }
+#audio-btn:hover { border-color:rgba(125,234,19,.4); color:rgba(125,234,19,.78); }
 
-/* ── Progress ──────────────────────────────────────────────────────────── */
-#progress {
-  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-  z-index:200; font-family:'Share Tech Mono',monospace;
-  font-size:.65rem; letter-spacing:.3em; text-transform:uppercase;
-  color:rgba(125,234,19,.45); display:none;
-}
+/* ── Load / progress ───────────────────────────────────────────────────── */
+#load-btn { position:fixed; top:26px; right:28px; z-index:100; background:transparent; border:1px solid rgba(255,255,255,.08); border-radius:5px; color:rgba(255,255,255,.22); padding:7px 14px; font-size:.56rem; letter-spacing:.16em; text-transform:uppercase; cursor:pointer; font-family:'Share Tech Mono',monospace; display:none; transition:all .2s; }
+#load-btn:hover { border-color:rgba(125,234,19,.3); color:rgba(125,234,19,.65); }
+#progress { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:200; font-family:'Share Tech Mono',monospace; font-size:.65rem; letter-spacing:.3em; text-transform:uppercase; color:rgba(125,234,19,.45); display:none; }
 canvas { cursor:grab; display:block; }
 canvas.dragging { cursor:grabbing; }
 </style>
@@ -159,41 +186,53 @@ canvas.dragging { cursor:grabbing; }
 <!-- HUD -->
 <div id="hud" class="hidden">
 
-  <!-- Headline -->
   <div id="hud-headline">
-    <span class="species">
-      <span id="sp-a">—</span><span class="x-sep">×</span><span id="sp-b">—</span>
-    </span>
+    <span class="species"><span id="sp-a">—</span><span class="x-sep">×</span><span id="sp-b">—</span></span>
     <span class="sub" id="hud-sub">—</span>
   </div>
 
-  <!-- LEFT PANEL: SNP Density + Heatmap -->
+  <!-- LEFT PANEL -->
   <div id="panel-left" class="hud-panel">
     <div class="psec">
-      <div class="ptitle">SNP Density <span class="psub">divergence / window</span></div>
+      <div class="ptitle">
+        <div class="ptitle-left"><span>SNP Density</span><span class="psub">divergence / window</span></div>
+        <button class="info-btn" data-key="snp">i</button>
+      </div>
       <canvas id="cvs-snp" class="pcvs"></canvas>
     </div>
     <div class="pdiv"></div>
     <div class="psec">
-      <div class="ptitle">Genome Heatmap <span class="psub">5 tracks</span></div>
+      <div class="ptitle">
+        <div class="ptitle-left"><span>Genome Heatmap</span><span class="psub">5 tracks</span></div>
+        <button class="info-btn" data-key="heat">i</button>
+      </div>
       <canvas id="cvs-heat" class="pcvs"></canvas>
     </div>
     <div class="pdiv"></div>
     <div class="psec">
-      <div class="ptitle">Circos Ring <span class="psub">genome topology</span></div>
+      <div class="ptitle">
+        <div class="ptitle-left"><span>Circos Ring</span><span class="psub">genome topology</span></div>
+        <button class="info-btn" data-key="circ">i</button>
+      </div>
       <canvas id="cvs-circ" class="pcvs"></canvas>
     </div>
   </div>
 
-  <!-- RIGHT PANEL: Dot Plot + Alignment + Synteny -->
+  <!-- RIGHT PANEL -->
   <div id="panel-right" class="hud-panel">
     <div class="psec">
-      <div class="ptitle">Dot Matrix <span class="psub">alignment path</span></div>
+      <div class="ptitle">
+        <div class="ptitle-left"><span>Dot Matrix</span><span class="psub">alignment path</span></div>
+        <button class="info-btn" data-key="dot">i</button>
+      </div>
       <canvas id="cvs-dot" class="pcvs"></canvas>
     </div>
     <div class="pdiv"></div>
     <div class="psec" style="padding-bottom:12px">
-      <div class="ptitle">Sequence Alignment <span class="psub">peak divergence</span></div>
+      <div class="ptitle">
+        <div class="ptitle-left"><span>Sequence Alignment</span><span class="psub">peak divergence</span></div>
+        <button class="info-btn" data-key="align">i</button>
+      </div>
       <div id="align-view"></div>
     </div>
   </div>
@@ -209,585 +248,765 @@ canvas.dragging { cursor:grabbing; }
 
   <!-- Bottom-right legend -->
   <div id="hud-legend">
-    <div class="legend-item" id="tog-match">
-      <span>Match</span>
-      <span class="legend-dot" style="background:#7DEA13;box-shadow:0 0 8px #7DEA13"></span>
-    </div>
-    <div class="legend-item" id="tog-mismatch">
-      <span>Mismatch</span>
-      <span class="legend-dot" style="background:#ff5520;box-shadow:0 0 8px #ff5520"></span>
-    </div>
-    <div class="legend-item" id="tog-gap">
-      <span>Gap</span>
-      <span class="legend-dot" style="background:#7733dd;box-shadow:0 0 6px #7733dd"></span>
-    </div>
+    <div class="legend-item" id="tog-match"><span>Match</span><span class="legend-dot" style="background:#7DEA13;box-shadow:0 0 8px #7DEA13"></span></div>
+    <div class="legend-item" id="tog-mismatch"><span>Mismatch</span><span class="legend-dot" style="background:#ff5520;box-shadow:0 0 8px #ff5520"></span></div>
+    <div class="legend-item" id="tog-gap"><span>Gap</span><span class="legend-dot" style="background:#7733dd;box-shadow:0 0 6px #7733dd"></span></div>
     <div class="key-hint" id="toggle-all-hint">[D] &nbsp;toggle all</div>
   </div>
 
 </div><!-- #hud -->
 
+<!-- Tooltip (outside HUD, always on top) -->
+<div id="tooltip"></div>
+
+<!-- Info modal -->
+<div id="modal-overlay">
+  <div id="modal">
+    <button id="modal-close">×</button>
+    <div id="modal-badge"></div>
+    <div id="modal-title"></div>
+    <div id="modal-body"></div>
+    <div id="modal-divider"></div>
+    <div id="modal-key"></div>
+  </div>
+</div>
+
 <button id="load-btn">Load file</button>
+<button id="audio-btn">AMBIENT</button>
 <div id="progress"></div>
 
 <script>
 // ─────────────────────────────────────────────────────────────────────────────
-// GLSL — point cloud shader
+// MODAL INFO CONTENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+const INFO = {
+  snp: {
+    title:'SNP Density Plot', badge:'DIVERGENCE', badgeColor:'#ff5520',
+    body:`Shows the rate of <em>single nucleotide polymorphisms</em> (SNPs) and indels across 42 equal-sized genomic windows.<br><br><strong>Bar height</strong> = proportion of non-matching positions in that window.<br><strong>Color</strong> graduates from green (conserved) to red (divergent) as mutation rate increases.<br><br>Tall red bars reveal mutation <em>hotspots</em> — regions under reduced selective pressure or actively evolving.`,
+    key:[ {color:'rgba(125,234,19,.8)',label:'Low divergence — conserved region'}, {color:'rgba(255,150,20,.8)',label:'Moderate divergence'}, {color:'rgba(255,50,20,.8)',label:'High divergence — evolutionary hotspot'} ]
+  },
+  heat: {
+    title:'Genome Heatmap', badge:'5 TRACKS', badgeColor:'#00ccff',
+    body:`Five parallel tracks display different genomic properties across 22 windows. Cell brightness = magnitude of each metric.<br><br><strong>MATCH</strong> — proportion of identical bases (conserved).<br><strong>SNP</strong> — single nucleotide polymorphism density.<br><strong>INDEL</strong> — insertion/deletion event density.<br><strong>GC·A / GC·B</strong> — GC nucleotide content for each species. GC content affects DNA stability and replication fidelity.`,
+    key:[ {color:'rgba(125,234,19,.8)',label:'MATCH — concordance rate'}, {color:'rgba(255,85,32,.8)',label:'SNP — substitution density'}, {color:'rgba(119,51,221,.8)',label:'INDEL — gap event density'}, {color:'rgba(0,200,255,.8)',label:'GC·A — GC content, genome A'}, {color:'rgba(68,136,255,.8)',label:'GC·B — GC content, genome B'} ]
+  },
+  circ: {
+    title:'Circos Ring', badge:'CIRCULAR', badgeColor:'#7DEA13',
+    body:`A circular ideogram of the complete genome alignment. The ring represents the full sequence from position 0 clockwise to the end.<br><br><strong>Arc brightness</strong> = local match density (brighter = more conserved).<br><strong>Orange spikes</strong> = mismatch rate radiating outward — taller spikes indicate denser SNP clusters.<br><strong>Violet dots</strong> on the inner edge = gap events (insertions or deletions).`,
+    key:[ {color:'rgba(125,234,19,.8)',label:'Arc brightness — conservation density'}, {color:'rgba(255,85,32,.8)',label:'Outer spikes — SNP rate'}, {color:'rgba(119,51,221,.8)',label:'Inner dots — gap / indel events'} ]
+  },
+  dot: {
+    title:'Dot Matrix / Synteny Map', badge:'SYNTENY', badgeColor:'#4488ff',
+    body:`A classic genomics dot plot revealing <em>synteny</em> — the conservation of gene order between species.<br><br><strong>X-axis</strong> = genomic position in Species A.<br><strong>Y-axis</strong> = genomic position in Species B.<br><strong>Diagonal band</strong> = conserved synteny; the tighter the band, the more gene order is preserved.<br><br>Deviations from the diagonal indicate rearrangements, large indels, or regions of accelerated evolution.`,
+    key:[ {color:'rgba(125,234,19,.7)',label:'Match — conserved alignment positions'}, {color:'rgba(255,85,32,.9)',label:'Mismatch — substituted bases (SNPs)'}, {color:'rgba(119,51,221,.85)',label:'Gap — insertions / deletions'} ]
+  },
+  align: {
+    title:'Sequence Alignment Viewer', badge:'BASE-BY-BASE', badgeColor:'#ff5520',
+    body:`Nucleotide-level view at the region with the <em>highest divergence density</em> in the genome.<br><br><strong>Top row</strong> = bases in Species A &nbsp;·&nbsp; <strong>Bottom row</strong> = bases in Species B.<br><strong>│</strong> = matching base pair (conserved).<br><strong>×</strong> = substitution — different nucleotide in each species.<br><strong>─</strong> = gap (–) representing an insertion or deletion event.<br><br>A = adenine &nbsp;·&nbsp; T = thymine &nbsp;·&nbsp; C = cytosine &nbsp;·&nbsp; G = guanine`,
+    key:[ {color:'rgba(125,234,19,.7)',label:'Green base — matches opposite strand'}, {color:'rgba(255,85,32,.9)',label:'Orange base — substitution (SNP)'}, {color:'rgba(119,51,221,.8)',label:'Violet base / dash — gap (indel)'} ]
+  }
+};
+
+function openModal(key) {
+  const d = INFO[key]; if (!d) return;
+  const badge = document.getElementById('modal-badge');
+  badge.textContent = d.badge;
+  badge.style.color = d.badgeColor;
+  badge.style.borderColor = d.badgeColor;
+  badge.style.background = d.badgeColor.replace(')', ',.08)').replace('rgb','rgba');
+  document.getElementById('modal-title').textContent = d.title;
+  document.getElementById('modal-body').innerHTML = d.body;
+  document.getElementById('modal-key').innerHTML = d.key.map(k =>
+    `<div class="mkey"><div class="mkey-dot" style="background:${k.color};box-shadow:0 0 5px ${k.color}"></div><span>${k.label}</span></div>`
+  ).join('');
+  document.getElementById('modal-overlay').classList.add('vis');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('vis'); }
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === document.getElementById('modal-overlay')) closeModal(); });
+document.querySelectorAll('.info-btn').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); openModal(btn.dataset.key); }));
+window.addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TOOLTIP
+// ─────────────────────────────────────────────────────────────────────────────
+
+const TIP = document.getElementById('tooltip');
+function showTip(html, e) {
+  TIP.innerHTML = html;
+  TIP.classList.add('vis');
+  moveTip(e);
+}
+function moveTip(e) {
+  const x = e.clientX + 16, y = e.clientY - 12;
+  TIP.style.left = Math.min(x, window.innerWidth  - TIP.offsetWidth  - 10) + 'px';
+  TIP.style.top  = Math.min(y, window.innerHeight - TIP.offsetHeight - 10) + 'px';
+}
+function hideTip() { TIP.classList.remove('vis'); }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STORED CHART DATA FOR HOVER LOOKUPS
+// ─────────────────────────────────────────────────────────────────────────────
+
+const CHART = {};
+
+function setupHoverListeners() {
+  // ── SNP Density ───────────────────────────────────────────────────────────
+  const snpCvs = document.getElementById('cvs-snp');
+  snpCvs.addEventListener('mousemove', e => {
+    if (!CHART.snp) return;
+    const rect = snpCvs.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const { bars, PAD, bw } = CHART.snp;
+    const idx = Math.floor((mx - PAD.l) / bw);
+    if (idx < 0 || idx >= bars.length) { hideTip(); return; }
+    const b = bars[idx];
+    showTip(
+      `<span style="color:rgba(125,234,19,.75)">SNP DENSITY</span><br>` +
+      `Window ${idx+1} of ${bars.length}<br>` +
+      `Divergence: <span style="color:#ff8850">${(b.rate*100).toFixed(2)}%</span><br>` +
+      `Range: ${b.start.toLocaleString()} – ${b.end.toLocaleString()} bp`, e);
+  });
+  snpCvs.addEventListener('mousemove', moveTip);
+  snpCvs.addEventListener('mouseleave', hideTip);
+
+  // ── Heatmap ───────────────────────────────────────────────────────────────
+  const heatCvs = document.getElementById('cvs-heat');
+  heatCvs.addEventListener('mousemove', e => {
+    if (!CHART.heat) return;
+    const rect = heatCvs.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const { data, TRACKS, LBL, rowH, colW } = CHART.heat;
+    if (mx < LBL) { hideTip(); return; }
+    const col = Math.floor((mx - LBL) / colW);
+    const row = Math.floor(my / rowH);
+    if (row < 0 || row >= TRACKS.length || col < 0 || col >= (data[0]||[]).length) { hideTip(); return; }
+    const t = TRACKS[row], val = data[row][col];
+    const [r,g,b] = t.rgb;
+    showTip(
+      `<span style="color:rgba(${r},${g},${b},.85)">${t.label}</span><br>` +
+      `Window ${col+1} of ${data[0].length}<br>` +
+      `Value: <span style="color:rgba(${r},${g},${b},.9)">${(val*100).toFixed(1)}%</span>`, e);
+  });
+  heatCvs.addEventListener('mousemove', moveTip);
+  heatCvs.addEventListener('mouseleave', hideTip);
+
+  // ── Circos ────────────────────────────────────────────────────────────────
+  const circCvs = document.getElementById('cvs-circ');
+  circCvs.addEventListener('mousemove', e => {
+    if (!CHART.circ) return;
+    const rect = circCvs.getBoundingClientRect();
+    const mx = e.clientX - rect.left - CHART.circ.cx;
+    const my = e.clientY - rect.top  - CHART.circ.cy;
+    const dist = Math.sqrt(mx*mx + my*my);
+    const { innerR, outerR, segs } = CHART.circ;
+    if (dist < innerR - 6 || dist > outerR + 12) { hideTip(); return; }
+    let ang = Math.atan2(my, mx) + Math.PI / 2;
+    if (ang < 0) ang += Math.PI * 2;
+    const idx = Math.min(Math.floor((ang / (Math.PI*2)) * segs.length), segs.length - 1);
+    const s = segs[idx];
+    showTip(
+      `<span style="color:rgba(125,234,19,.75)">CIRCOS RING</span><br>` +
+      `${s.start.toLocaleString()} – ${s.end.toLocaleString()} bp<br>` +
+      `Match: <span style="color:rgba(125,234,19,.8)">${(s.matchR*100).toFixed(1)}%</span>  ` +
+      `SNP: <span style="color:#ff5520">${(s.snpR*100).toFixed(1)}%</span>  ` +
+      `Gap: <span style="color:#9955ff">${(s.gapR*100).toFixed(1)}%</span>`, e);
+  });
+  circCvs.addEventListener('mousemove', moveTip);
+  circCvs.addEventListener('mouseleave', hideTip);
+
+  // ── Dot plot ──────────────────────────────────────────────────────────────
+  const dotCvs = document.getElementById('cvs-dot');
+  dotCvs.addEventListener('mousemove', e => {
+    if (!CHART.dot) return;
+    const rect = dotCvs.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const { W, H, PAD, lenA, lenB } = CHART.dot;
+    const fA = (mx - PAD) / (W - PAD*2);
+    const fB = 1 - (my - PAD) / (H - PAD*2);
+    if (fA < 0 || fA > 1 || fB < 0 || fB > 1) { hideTip(); return; }
+    showTip(
+      `<span style="color:rgba(125,234,19,.75)">DOT MATRIX</span><br>` +
+      `Species A: <span style="color:rgba(125,234,19,.8)">${Math.round(fA*lenA).toLocaleString()} bp</span><br>` +
+      `Species B: <span style="color:rgba(68,136,255,.8)">${Math.round(fB*lenB).toLocaleString()} bp</span>`, e);
+  });
+  dotCvs.addEventListener('mousemove', moveTip);
+  dotCvs.addEventListener('mouseleave', hideTip);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AMBIENT AUDIO ENGINE
+// Procedural ambient music — minor-pentatonic drone with filter + reverb.
+// Mouse controls brightness (Y) and detune (edge factor).
+// Genome match rate at the facing region shifts chord tension.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const Audio = (() => {
+  let ctx, master, filt, pads = [], lfo, lfogain;
+  let ready = false, on = false;
+
+  // A-minor pentatonic bass pad: A2, C3, E3, G3, A3
+  const FREQS = [110, 130.81, 164.81, 196.00, 220.00];
+  const VOLS  = [0.32, 0.13, 0.11, 0.09, 0.07];
+
+  function impulseReverb(ac, dur, decay) {
+    const len = ac.sampleRate * dur, buf = ac.createBuffer(2, len, ac.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      for (let i = 0; i < len; i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/len, decay);
+    }
+    const c = ac.createConvolver(); c.buffer = buf; return c;
+  }
+
+  function init() {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -22; comp.ratio.value = 10;
+    comp.attack.value = 0.05; comp.release.value = 0.6;
+    comp.connect(ctx.destination);
+
+    const rev   = impulseReverb(ctx, 5.0, 2.8);
+    const wetG  = ctx.createGain(); wetG.gain.value  = 0.62; rev.connect(wetG); wetG.connect(comp);
+    const dryG  = ctx.createGain(); dryG.gain.value  = 0.38; dryG.connect(comp);
+
+    master = ctx.createGain(); master.gain.value = 0;
+    master.connect(wetG); master.connect(dryG);
+
+    filt = ctx.createBiquadFilter();
+    filt.type = 'lowpass'; filt.frequency.value = 280; filt.Q.value = 1.1;
+    filt.connect(master);
+
+    // LFO on filter for slow organic movement
+    lfo = ctx.createOscillator(); lfo.frequency.value = 0.07; lfo.type = 'sine';
+    lfogain = ctx.createGain(); lfogain.gain.value = 55;
+    lfo.connect(lfogain); lfogain.connect(filt.frequency); lfo.start();
+
+    // Oscillators
+    pads = FREQS.map((freq, i) => {
+      const osc = ctx.createOscillator();
+      osc.type = i === 0 ? 'sine' : 'triangle';
+      osc.frequency.value = freq;
+      const g = ctx.createGain(); g.gain.value = VOLS[i];
+      osc.connect(g); g.connect(filt); osc.start();
+      return { osc, gain: g, baseFreq: freq, baseVol: VOLS[i] };
+    });
+
+    ready = true;
+  }
+
+  function start() {
+    if (!ready) init();
+    if (ctx.state === 'suspended') ctx.resume();
+    master.gain.setTargetAtTime(0.09, ctx.currentTime, 2.8);
+    on = true;
+  }
+
+  function stop() {
+    if (!ready) return;
+    master.gain.setTargetAtTime(0, ctx.currentTime, 1.8);
+    on = false;
+  }
+
+  // Called every animation frame
+  function update(mnx, mny, edgeFac, matchRate) {
+    if (!ready || !on) return;
+    const now = ctx.currentTime, dt = 0.5;
+
+    // Mouse Y → filter cutoff (top bright, bottom dark)
+    filt.frequency.setTargetAtTime(160 + (1-(mny*.5+.5))*1800, now, dt);
+
+    // Edge factor → per-oscillator detuning (scatter = dissonance)
+    pads.forEach((p, i) => {
+      const sign = i%2===0?1:-1;
+      p.osc.detune.setTargetAtTime(sign * edgeFac * 22, now, dt*.7);
+    });
+
+    // Match rate → chord tension
+    // High match: pure fifth (A+E); Low match: nudge one pad toward tritone
+    if (matchRate !== undefined) {
+      const tension = 1 - matchRate;
+      // Drift pad[2] (E3) toward E♭3 (155.56) under tension
+      pads[2].osc.frequency.setTargetAtTime(164.81 - tension * 9.25, now, 2.0);
+      // Boost upper harmonics under tension (gnarly texture)
+      pads[3].gain.gain.setTargetAtTime(pads[3].baseVol + tension * 0.07, now, 1.5);
+    }
+
+    // Volume breathes gently with mouse distance from center
+    const dist = Math.sqrt(mnx*mnx + mny*mny);
+    master.gain.setTargetAtTime(0.07 + dist * 0.028, now, 1.2);
+  }
+
+  return { start, stop, update, isOn: () => on };
+})();
+
+// Audio button
+document.getElementById('audio-btn').addEventListener('click', () => {
+  const btn = document.getElementById('audio-btn');
+  if (Audio.isOn()) { Audio.stop(); btn.classList.remove('active'); }
+  else              { Audio.start(); btn.classList.add('active'); }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GENOME-FACING POSITION → MATCH RATE (for audio reactivity)
+// ─────────────────────────────────────────────────────────────────────────────
+
+let matchRateArray = null;
+
+function buildMatchRateArray(positions, N) {
+  const ws = Math.ceil(positions.length / N);
+  return Array.from({length: N}, (_, i) => {
+    const s = i*ws, e = Math.min(s+ws, positions.length), n = e-s;
+    let m = 0;
+    for (let j = s; j < e; j++) if (positions[j].type==='match') m++;
+    return m / n;
+  });
+}
+
+function frontMatchRate() {
+  if (!matchRateArray) return undefined;
+  // Sphere z+ faces camera. At rotation.y = R, the local z+ = direction theta=pi/2-R
+  let theta = (Math.PI/2 - pivot.rotation.y) % (Math.PI*2);
+  if (theta < 0) theta += Math.PI*2;
+  const frac = theta / (Math.PI*2);
+  return matchRateArray[Math.floor(frac * matchRateArray.length)];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GLSL SHADERS
 // ─────────────────────────────────────────────────────────────────────────────
 
 const VERT = `
   attribute vec3 scatterPos;
-  uniform float uBlend;
-  uniform float uSize;
-  uniform float uDPR;
+  uniform float uBlend; uniform float uSize; uniform float uDPR;
   void main() {
-    vec3 p  = mix(position, scatterPos, uBlend);
+    vec3 p = mix(position, scatterPos, uBlend);
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_PointSize = uSize * uDPR;
     gl_Position  = projectionMatrix * mv;
-  }
-`;
+  }`;
 const FRAG = `
-  uniform vec3  uColor;
-  uniform float uOpacity;
+  uniform vec3 uColor; uniform float uOpacity;
   void main() {
     float d = length(gl_PointCoord - vec2(0.5)) * 2.0;
     if (d > 1.0) discard;
-    float s   = exp(-d * 2.6);
-    vec3  col = mix(uColor, vec3(1.0), s * 0.48);
+    float s = exp(-d * 2.6);
+    vec3 col = mix(uColor, vec3(1.0), s * 0.48);
     gl_FragColor = vec4(col, s * uOpacity);
-  }
-`;
+  }`;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Three.js setup
+// THREE.JS SETUP
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DPR = Math.min(window.devicePixelRatio, 2);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(DPR);
-renderer.setSize(window.innerWidth, window.innerHeight);
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setPixelRatio(DPR); renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x000000, 1);
 document.body.insertBefore(renderer.domElement, document.body.firstChild);
 
 const scene  = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.01, 200);
+const camera = new THREE.PerspectiveCamera(52, window.innerWidth/window.innerHeight, 0.01, 200);
 camera.position.set(0, 0, 3.2);
+const pivot = new THREE.Group(); pivot.rotation.x = -0.25; scene.add(pivot);
 
-const pivot = new THREE.Group();
-pivot.rotation.x = -0.25;
-scene.add(pivot);
-
-// Star field
+// Stars
 (function() {
-  const N = 1600, buf = new Float32Array(N * 3);
-  for (let i = 0; i < N; i++) {
-    const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1), r = 9 + Math.random() * 14;
-    buf[i*3] = r * Math.sin(ph) * Math.cos(th); buf[i*3+1] = r * Math.sin(ph) * Math.sin(th); buf[i*3+2] = r * Math.cos(ph);
-  }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.BufferAttribute(buf, 3));
-  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color:0xffffff, size:.025, transparent:true, opacity:.18, sizeAttenuation:true, depthWrite:false })));
+  const N=1600, b=new Float32Array(N*3);
+  for (let i=0;i<N;i++) { const th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1),r=9+Math.random()*14; b[i*3]=r*Math.sin(ph)*Math.cos(th); b[i*3+1]=r*Math.sin(ph)*Math.sin(th); b[i*3+2]=r*Math.cos(ph); }
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(b,3));
+  scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.025,transparent:true,opacity:.18,sizeAttenuation:true,depthWrite:false})));
 })();
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Hilbert curve
+// HILBERT CURVE
 // ─────────────────────────────────────────────────────────────────────────────
 
-function hilbertD2XY(order, d) {
+function hilbertD2XY(order,d) {
   let x=0,y=0;
-  for (let s=1; s<(1<<order); s<<=1) {
-    const rx=(d>>1)&1, ry=(d^rx)&1;
-    if (!ry) { if (rx) { x=s-1-x; y=s-1-y; } [x,y]=[y,x]; }
-    x+=s*rx; y+=s*ry; d>>=2;
-  }
+  for (let s=1;s<(1<<order);s<<=1) { const rx=(d>>1)&1,ry=(d^rx)&1; if(!ry){if(rx){x=s-1-x;y=s-1-y;}[x,y]=[y,x];} x+=s*rx;y+=s*ry;d>>=2; }
   return [x,y];
 }
 function buildHilbertLUT(order) {
-  const n=1<<order, total=n*n, lut=new Int32Array(total*2);
-  for (let d=0;d<total;d++) { const [x,y]=hilbertD2XY(order,d); lut[d*2]=x; lut[d*2+1]=y; }
+  const n=1<<order,total=n*n,lut=new Int32Array(total*2);
+  for(let d=0;d<total;d++){const[x,y]=hilbertD2XY(order,d);lut[d*2]=x;lut[d*2+1]=y;}
   return lut;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Point cloud
+// POINT CLOUD
 // ─────────────────────────────────────────────────────────────────────────────
 
-const SPHERE_R = 1.18;
 const CFG = {
-  match:    { color: new THREE.Color(0x7DEA13), size: 4.0, opacity: 0.70 },
-  mismatch: { color: new THREE.Color(0xff5520), size: 7.0, opacity: 1.00 },
-  gap:      { color: new THREE.Color(0x7733dd), size: 3.5, opacity: 0.55 },
+  match:    {color:new THREE.Color(0x7DEA13), size:4.0, opacity:0.70},
+  mismatch: {color:new THREE.Color(0xff5520), size:7.0, opacity:1.00},
+  gap:      {color:new THREE.Color(0x7733dd), size:3.5, opacity:0.55},
 };
-
-let cloudObjects = {}, cloudMats = {}, edgeBlend = 0;
-const vis = { match:true, mismatch:true, gap:true };
+let cloudObjects={}, cloudMats={}, edgeBlend=0;
+const vis={match:true, mismatch:true, gap:true};
 
 function disposeAll() {
-  Object.values(cloudObjects).forEach(c => { if(!c) return; c.geometry.dispose(); c.material.dispose(); pivot.remove(c); });
-  cloudObjects = {}; cloudMats = {};
+  Object.values(cloudObjects).forEach(c=>{if(!c)return;c.geometry.dispose();c.material.dispose();pivot.remove(c);});
+  cloudObjects={}; cloudMats={};
 }
 
 function buildPointCloud(data) {
-  disposeAll(); edgeBlend = 0;
-  const positions = data.positions, posLen = positions.length;
+  disposeAll(); edgeBlend=0;
+  const positions=data.positions, posLen=positions.length;
   const ORDER=7, GRID_N=1<<ORDER, TOTAL=GRID_N*GRID_N;
   setProgress('Building Hilbert LUT…');
-  const lut = buildHilbertLUT(ORDER);
+  const lut=buildHilbertLUT(ORDER);
   let nM=0,nMM=0,nG=0;
-  for (let i=0;i<posLen;i++) { const t=positions[i].type; if(t==='match')nM++; else if(t==='mismatch')nMM++; else nG++; }
-  const sbuf={ match:new Float32Array(nM*3), mismatch:new Float32Array(nMM*3), gap:new Float32Array(nG*3) };
-  const scbuf={ match:new Float32Array(nM*3), mismatch:new Float32Array(nMM*3), gap:new Float32Array(nG*3) };
-  const idx={ match:0, mismatch:0, gap:0 };
+  for(let i=0;i<posLen;i++){const t=positions[i].type;if(t==='match')nM++;else if(t==='mismatch')nMM++;else nG++;}
+  const sb={match:new Float32Array(nM*3),mismatch:new Float32Array(nMM*3),gap:new Float32Array(nG*3)};
+  const sc={match:new Float32Array(nM*3),mismatch:new Float32Array(nMM*3),gap:new Float32Array(nG*3)};
+  const idx={match:0,mismatch:0,gap:0};
   let seed=0xdeadbeef;
-  const rand=()=>{ seed^=seed<<13; seed^=seed>>17; seed^=seed<<5; return (seed>>>0)/0x100000000; };
+  const rand=()=>{seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return(seed>>>0)/0x100000000;};
   setProgress('Mapping genome to sphere…');
-  for (let i=0;i<posLen;i++) {
+  for(let i=0;i<posLen;i++){
     const ci=Math.min(Math.floor(i*TOTAL/posLen),TOTAL-1);
-    const gx=lut[ci*2], gy=lut[ci*2+1];
-    const u=gx/GRID_N, v=gy/GRID_N, theta=u*Math.PI*2, phi=v*Math.PI, sr=SPHERE_R+(rand()-.5)*.025;
-    const sx=sr*Math.sin(phi)*Math.cos(theta), sy=sr*Math.cos(phi), sz=sr*Math.sin(phi)*Math.sin(theta);
-    const scR=2.2+rand()*2.2, scT=rand()*Math.PI*2, scP=Math.acos(2*rand()-1);
-    const scx=scR*Math.sin(scP)*Math.cos(scT), scy=scR*Math.cos(scP), scz=scR*Math.sin(scP)*Math.sin(scT);
-    const t=positions[i].type, i3=idx[t];
-    sbuf[t][i3]=sx; sbuf[t][i3+1]=sy; sbuf[t][i3+2]=sz;
-    scbuf[t][i3]=scx; scbuf[t][i3+1]=scy; scbuf[t][i3+2]=scz;
+    const gx=lut[ci*2],gy=lut[ci*2+1];
+    const theta=(gx/GRID_N)*Math.PI*2,phi=(gy/GRID_N)*Math.PI,sr=1.18+(rand()-.5)*.025;
+    const sx=sr*Math.sin(phi)*Math.cos(theta),sy=sr*Math.cos(phi),sz=sr*Math.sin(phi)*Math.sin(theta);
+    const scR=2.2+rand()*2.2,scT=rand()*Math.PI*2,scP=Math.acos(2*rand()-1);
+    const scx=scR*Math.sin(scP)*Math.cos(scT),scy=scR*Math.cos(scP),scz=scR*Math.sin(scP)*Math.sin(scT);
+    const t=positions[i].type,i3=idx[t];
+    sb[t][i3]=sx;sb[t][i3+1]=sy;sb[t][i3+2]=sz;
+    sc[t][i3]=scx;sc[t][i3+1]=scy;sc[t][i3+2]=scz;
     idx[t]+=3;
   }
   ['match','mismatch','gap'].forEach(type=>{
     const geo=new THREE.BufferGeometry();
-    geo.setAttribute('position',new THREE.BufferAttribute(sbuf[type],3));
-    geo.setAttribute('scatterPos',new THREE.BufferAttribute(scbuf[type],3));
+    geo.setAttribute('position',new THREE.BufferAttribute(sb[type],3));
+    geo.setAttribute('scatterPos',new THREE.BufferAttribute(sc[type],3));
     const c=CFG[type];
     const mat=new THREE.ShaderMaterial({
-      uniforms:{ uColor:{value:c.color}, uOpacity:{value:c.opacity}, uBlend:{value:0}, uSize:{value:c.size}, uDPR:{value:DPR} },
-      vertexShader:VERT, fragmentShader:FRAG,
-      transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+      uniforms:{uColor:{value:c.color},uOpacity:{value:c.opacity},uBlend:{value:0},uSize:{value:c.size},uDPR:{value:DPR}},
+      vertexShader:VERT,fragmentShader:FRAG,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
     });
     const pts=new THREE.Points(geo,mat);
-    pivot.add(pts); cloudObjects[type]=pts; cloudMats[type]=mat;
+    pivot.add(pts);cloudObjects[type]=pts;cloudMats[type]=mat;
   });
   setProgress('');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Drag rotation
+// DRAG ROTATION + MOUSE TRACKING
 // ─────────────────────────────────────────────────────────────────────────────
 
-let isDragging=false, lastDX=0, lastDY=0, rotVelX=0, rotVelY=0;
+let isDragging=false,lastDX=0,lastDY=0,rotVelX=0,rotVelY=0;
 let mouseX=window.innerWidth/2, mouseY=window.innerHeight/2;
 
-renderer.domElement.addEventListener('mousedown', e => {
-  if (e.button!==0) return;
-  isDragging=true; lastDX=e.clientX; lastDY=e.clientY; rotVelX=rotVelY=0;
+renderer.domElement.addEventListener('mousedown',e=>{
+  if(e.button!==0)return; isDragging=true; lastDX=e.clientX; lastDY=e.clientY; rotVelX=rotVelY=0;
   renderer.domElement.classList.add('dragging');
 });
-window.addEventListener('mouseup', ()=>{ isDragging=false; renderer.domElement.classList.remove('dragging'); });
-window.addEventListener('mousemove', e=>{
+window.addEventListener('mouseup',()=>{isDragging=false;renderer.domElement.classList.remove('dragging');});
+window.addEventListener('mousemove',e=>{
   mouseX=e.clientX; mouseY=e.clientY;
-  if (isDragging) {
-    const dx=e.clientX-lastDX, dy=e.clientY-lastDY;
-    rotVelY=dx*.006; rotVelX=dy*.006;
-    pivot.rotation.y+=rotVelY; pivot.rotation.x+=rotVelX;
-    lastDX=e.clientX; lastDY=e.clientY;
+  if(isDragging){
+    const dx=e.clientX-lastDX,dy=e.clientY-lastDY;
+    rotVelY=dx*.006;rotVelX=dy*.006;
+    pivot.rotation.y+=rotVelY;pivot.rotation.x+=rotVelX;
+    lastDX=e.clientX;lastDY=e.clientY;
   }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Edge dispersion
+// EDGE DISPERSION + TOGGLES
 // ─────────────────────────────────────────────────────────────────────────────
 
-const EDGE_BAND = 0.18;
-function edgeFactor() {
-  const ex=Math.min(mouseX/window.innerWidth, 1-mouseX/window.innerWidth);
-  const ey=Math.min(mouseY/window.innerHeight, 1-mouseY/window.innerHeight);
-  return 1-Math.min(Math.min(ex,ey)/EDGE_BAND, 1);
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Visibility toggles
-// ─────────────────────────────────────────────────────────────────────────────
-
-function toggleType(t){ vis[t]=!vis[t]; document.getElementById('tog-'+t).classList.toggle('muted',!vis[t]); }
-function toggleAll(){ const on=vis.match||vis.mismatch||vis.gap; ['match','mismatch','gap'].forEach(t=>{ vis[t]=!on; document.getElementById('tog-'+t).classList.toggle('muted',on); }); }
+const EDGE_BAND=0.18;
+function edgeFactor(){const ex=Math.min(mouseX/window.innerWidth,1-mouseX/window.innerWidth),ey=Math.min(mouseY/window.innerHeight,1-mouseY/window.innerHeight);return 1-Math.min(Math.min(ex,ey)/EDGE_BAND,1);}
+function toggleType(t){vis[t]=!vis[t];document.getElementById('tog-'+t).classList.toggle('muted',!vis[t]);}
+function toggleAll(){const on=vis.match||vis.mismatch||vis.gap;['match','mismatch','gap'].forEach(t=>{vis[t]=!on;document.getElementById('tog-'+t).classList.toggle('muted',on);});}
 ['match','mismatch','gap'].forEach(t=>document.getElementById('tog-'+t).addEventListener('click',()=>toggleType(t)));
-document.getElementById('toggle-all-hint').addEventListener('click', toggleAll);
-window.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='d') toggleAll(); });
+document.getElementById('toggle-all-hint').addEventListener('click',toggleAll);
+window.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='d')toggleAll();});
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Animation loop
+// ANIMATION LOOP
 // ─────────────────────────────────────────────────────────────────────────────
 
-function animate() {
+function animate(){
   requestAnimationFrame(animate);
-  if (Object.keys(cloudObjects).length) {
-    if (!isDragging) { rotVelX*=.92; rotVelY*=.92; pivot.rotation.x+=rotVelX; pivot.rotation.y+=rotVelY; }
+  if(Object.keys(cloudObjects).length){
+    if(!isDragging){rotVelX*=.92;rotVelY*=.92;pivot.rotation.x+=rotVelX;pivot.rotation.y+=rotVelY;}
     edgeBlend+=(edgeFactor()-edgeBlend)*.04;
+    const mnx=(mouseX/window.innerWidth-.5)*2, mny=(mouseY/window.innerHeight-.5)*2;
     ['match','mismatch','gap'].forEach(t=>{
-      const mat=cloudMats[t]; if(!mat) return;
+      const mat=cloudMats[t];if(!mat)return;
       mat.uniforms.uBlend.value=edgeBlend;
       const tgt=vis[t]?CFG[t].opacity:0;
       mat.uniforms.uOpacity.value+=(tgt-mat.uniforms.uOpacity.value)*.08;
     });
+    Audio.update(mnx, mny, edgeBlend, frontMatchRate());
   }
-  renderer.render(scene, camera);
+  renderer.render(scene,camera);
 }
 animate();
 
-window.addEventListener('resize', ()=>{
-  camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+window.addEventListener('resize',()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Canvas helper — sets up DPR-scaled canvas
+// CANVAS SETUP HELPER
 // ─────────────────────────────────────────────────────────────────────────────
 
-function setupCanvas(id) {
-  const el = document.getElementById(id);
-  const W  = el.offsetWidth, H = el.offsetHeight;
-  const sc = window.devicePixelRatio || 1;
-  el.width  = Math.round(W * sc);
-  el.height = Math.round(H * sc);
-  const ctx = el.getContext('2d');
-  ctx.scale(sc, sc);
-  return { ctx, W, H };
+function setupCanvas(id){
+  const el=document.getElementById(id);
+  const W=el.offsetWidth,H=el.offsetHeight,sc=window.devicePixelRatio||1;
+  el.width=Math.round(W*sc);el.height=Math.round(H*sc);
+  const ctx=el.getContext('2d');ctx.scale(sc,sc);
+  return{ctx,W,H};
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SNP DENSITY PLOT  (left panel, top)
-// Divergence rate (mismatch + gap) per genome window — color-graded bar chart
+// SNP DENSITY PLOT
 // ─────────────────────────────────────────────────────────────────────────────
 
-function renderSNPDensity(positions) {
-  const { ctx, W, H } = setupCanvas('cvs-snp');
-  const N = 42;
-  const winSize = Math.ceil(positions.length / N);
-  const bars = [];
-  for (let i = 0; i < N; i++) {
-    const s = i * winSize, e = Math.min(s + winSize, positions.length), n = e - s;
-    let div = 0;
-    for (let j = s; j < e; j++) if (positions[j].type !== 'match') div++;
-    bars.push(div / n);
+function renderSNPDensity(positions){
+  const{ctx,W,H}=setupCanvas('cvs-snp');
+  const N=42,ws=Math.ceil(positions.length/N);
+  const bars=[];
+  for(let i=0;i<N;i++){
+    const s=i*ws,e=Math.min(s+ws,positions.length),n=e-s;
+    let div=0;for(let j=s;j<e;j++)if(positions[j].type!=='match')div++;
+    bars.push({start:s,end:e,rate:div/n});
   }
-  const maxVal = Math.max(...bars) || 1;
-  const PAD = { t:4, b:14, l:2, r:2 };
-  const pw = W - PAD.l - PAD.r, ph = H - PAD.t - PAD.b, bw = pw / N;
+  const maxRate=Math.max(...bars.map(b=>b.rate))||1;
+  const PAD={t:4,b:14,l:2,r:2},pw=W-PAD.l-PAD.r,ph=H-PAD.t-PAD.b,bw=pw/N;
 
-  // Subtle grid
-  ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = .5;
-  [.25,.5,.75,1].forEach(f => {
-    const y = PAD.t + ph * (1 - f);
-    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=.5;
+  [.25,.5,.75,1].forEach(f=>{const y=PAD.t+ph*(1-f);ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(W-PAD.r,y);ctx.stroke();});
+
+  bars.forEach((b,i)=>{
+    const t=b.rate/maxRate,bh=Math.max(1,t*ph),x=PAD.l+i*bw,y=PAD.t+ph-bh;
+    const r=Math.round(125+t*130),g2=Math.round(234-t*200);
+    ctx.fillStyle=`rgba(${r},${g2},19,${.5+t*.45})`;
+    ctx.fillRect(x+.5,y,bw-1,bh);
+    // Hover glow column — transparent by default, highlight on hover done in CSS
   });
+  ctx.fillStyle='rgba(255,255,255,.2)';ctx.font='7px "Share Tech Mono"';
+  ctx.textAlign='left';ctx.fillText('0',PAD.l,H-2);
+  ctx.textAlign='right';ctx.fillText((positions.length/1000).toFixed(0)+'k bp',W-PAD.r,H-2);
 
-  bars.forEach((d, i) => {
-    const t   = d / maxVal;
-    const bh  = Math.max(1, t * ph);
-    const x   = PAD.l + i * bw;
-    const y   = PAD.t + ph - bh;
-    // Gradient: green → orange → red as divergence rises
-    const r = Math.round(125 + t * 130), g2 = Math.round(234 - t * 200), b = Math.round(19);
-    ctx.fillStyle = `rgba(${r},${g2},${b},${.5 + t * .45})`;
-    ctx.fillRect(x + .5, y, bw - 1, bh);
-  });
-
-  // Axis
-  ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.font = '7px "Share Tech Mono"';
-  ctx.textAlign = 'left';  ctx.fillText('0', PAD.l, H - 2);
-  ctx.textAlign = 'right'; ctx.fillText((positions.length / 1000).toFixed(0) + 'k bp', W - PAD.r, H - 2);
+  CHART.snp={bars,PAD,bw};
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GENOME HEATMAP  (left panel, middle)
-// 5 metric tracks × N windows — each row has its own color ramp
+// GENOME HEATMAP
 // ─────────────────────────────────────────────────────────────────────────────
 
-function renderHeatmap(positions) {
-  const { ctx, W, H } = setupCanvas('cvs-heat');
-  const N = 22;
-  const winSize = Math.ceil(positions.length / N);
-
-  const TRACKS = [
-    { label:'MATCH',  rgb:[125,234,19]  },
-    { label:'SNP',    rgb:[255, 85, 32] },
-    { label:'INDEL',  rgb:[119, 51,221] },
-    { label:'GC·A',   rgb:[ 0 ,200,255] },
-    { label:'GC·B',   rgb:[ 68,136,255] },
+function renderHeatmap(positions){
+  const{ctx,W,H}=setupCanvas('cvs-heat');
+  const N=22,ws=Math.ceil(positions.length/N);
+  const TRACKS=[
+    {label:'MATCH', rgb:[125,234,19]},
+    {label:'SNP',   rgb:[255, 85,32]},
+    {label:'INDEL', rgb:[119, 51,221]},
+    {label:'GC·A',  rgb:[  0,200,255]},
+    {label:'GC·B',  rgb:[ 68,136,255]},
   ];
-
-  const data = TRACKS.map(() => []);
-  for (let col = 0; col < N; col++) {
-    const s = col * winSize, e = Math.min(s + winSize, positions.length), n = e - s;
+  const data=TRACKS.map(()=>[]);
+  for(let col=0;col<N;col++){
+    const s=col*ws,e=Math.min(s+ws,positions.length),n=e-s;
     let m=0,mm=0,g=0,gca=0,gcb=0;
-    for (let j = s; j < e; j++) {
-      const p = positions[j];
-      if (p.type==='match') m++; else if (p.type==='mismatch') mm++; else g++;
-      if (p.a==='G'||p.a==='C') gca++;
-      if (p.b==='G'||p.b==='C') gcb++;
-    }
-    data[0].push(m/n); data[1].push(mm/n); data[2].push(g/n); data[3].push(gca/n); data[4].push(gcb/n);
+    for(let j=s;j<e;j++){const p=positions[j];if(p.type==='match')m++;else if(p.type==='mismatch')mm++;else g++;if(p.a==='G'||p.a==='C')gca++;if(p.b==='G'||p.b==='C')gcb++;}
+    data[0].push(m/n);data[1].push(mm/n);data[2].push(g/n);data[3].push(gca/n);data[4].push(gcb/n);
   }
-
-  const LBL = 40, rowH = H / TRACKS.length, colW = (W - LBL) / N;
-
-  TRACKS.forEach(({ label, rgb }, ri) => {
-    const [r,g,b] = rgb, y0 = ri * rowH;
-    ctx.fillStyle='rgba(255,255,255,.28)'; ctx.font='7.5px "Share Tech Mono"'; ctx.textAlign='right';
-    ctx.fillText(label, LBL - 3, y0 + rowH * .65);
-    data[ri].forEach((val, ci) => {
-      const alpha = .05 + Math.pow(val, .55) * .93;
-      ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
-      ctx.fillRect(LBL + ci * colW + .5, y0 + .5, colW - 1, rowH - 1);
+  const LBL=40,rowH=H/TRACKS.length,colW=(W-LBL)/N;
+  TRACKS.forEach(({label,rgb},ri)=>{
+    const[r,g,b]=rgb,y0=ri*rowH;
+    ctx.fillStyle='rgba(255,255,255,.28)';ctx.font='7.5px "Share Tech Mono"';ctx.textAlign='right';
+    ctx.fillText(label,LBL-3,y0+rowH*.65);
+    data[ri].forEach((val,ci)=>{
+      const alpha=.05+Math.pow(val,.55)*.93;
+      ctx.fillStyle=`rgba(${r},${g},${b},${alpha})`;
+      ctx.fillRect(LBL+ci*colW+.5,y0+.5,colW-1,rowH-1);
     });
-    if (ri < TRACKS.length - 1) {
-      ctx.fillStyle='rgba(255,255,255,.04)'; ctx.fillRect(LBL, y0 + rowH - .5, W - LBL, 1);
-    }
+    if(ri<TRACKS.length-1){ctx.fillStyle='rgba(255,255,255,.04)';ctx.fillRect(LBL,y0+rowH-.5,W-LBL,1);}
   });
+  ctx.fillStyle='rgba(255,255,255,.15)';ctx.font='6px "Share Tech Mono"';
+  [0,.5,1].forEach(f=>{const x=LBL+f*(W-LBL);ctx.textAlign=f===0?'left':f===1?'right':'center';ctx.fillText(Math.round(f*positions.length/1000)+'k',x,H);});
 
-  // Column ticks at 0 / 50% / 100%
-  ctx.fillStyle='rgba(255,255,255,.15)'; ctx.font='6px "Share Tech Mono"';
-  [0, .5, 1].forEach(f => {
-    const x = LBL + f * (W - LBL);
-    ctx.textAlign = f===0?'left':f===1?'right':'center';
-    ctx.fillText(Math.round(f * positions.length / 1000) + 'k', x, H);
-  });
+  CHART.heat={data,TRACKS,LBL,rowH,colW,W,H};
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CIRCOS RING  (left panel, bottom)
-// Circular genome layout — match/mismatch/gap arcs around a ring
+// CIRCOS RING
 // ─────────────────────────────────────────────────────────────────────────────
 
-function renderCircos(positions) {
-  const { ctx, W, H } = setupCanvas('cvs-circ');
-  const cx = W / 2, cy = H / 2 + 4;
-  const outerR = Math.min(W, H) / 2 - 6;
-  const innerR = outerR - 11;
-  const N = 180; // number of arc segments
-  const winSize = Math.ceil(positions.length / N);
+function renderCircos(positions){
+  const{ctx,W,H}=setupCanvas('cvs-circ');
+  const cx=W/2,cy=H/2+4,outerR=Math.min(W,H)/2-6,innerR=outerR-11;
+  const N=180,ws=Math.ceil(positions.length/N);
+  const segs=[];
 
-  // Dark backing ring
-  ctx.beginPath(); ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(125,234,19,.04)'; ctx.fill();
-  ctx.strokeStyle = 'rgba(125,234,19,.12)'; ctx.lineWidth = .5; ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,outerR,0,Math.PI*2);
+  ctx.fillStyle='rgba(125,234,19,.04)';ctx.fill();
+  ctx.strokeStyle='rgba(125,234,19,.1)';ctx.lineWidth=.5;ctx.stroke();
 
-  // Arc segments
-  for (let i = 0; i < N; i++) {
-    const s = i * winSize, e = Math.min(s + winSize, positions.length), n = e - s;
+  for(let i=0;i<N;i++){
+    const s=i*ws,e=Math.min(s+ws,positions.length),n=e-s;
     let m=0,mm=0,gp=0;
-    for (let j = s; j < e; j++) {
-      const t = positions[j].type;
-      if (t==='match') m++; else if (t==='mismatch') mm++; else gp++;
+    for(let j=s;j<e;j++){const t=positions[j].type;if(t==='match')m++;else if(t==='mismatch')mm++;else gp++;}
+    const matchR=m/n,snpR=mm/n,gapR=gp/n;
+    segs.push({start:s,end:e,matchR,snpR,gapR});
+    const sa=(i/N)*Math.PI*2-Math.PI/2,ea=((i+1)/N)*Math.PI*2-Math.PI/2,mid=(sa+ea)/2;
+    ctx.beginPath();ctx.arc(cx,cy,(innerR+outerR)/2,sa,ea);
+    ctx.strokeStyle=`rgba(125,234,19,${.07+matchR*.28})`;ctx.lineWidth=outerR-innerR-1;ctx.stroke();
+    if(mm>0){
+      const t2=mm/n,r2=outerR+t2*8;
+      ctx.beginPath();ctx.moveTo(cx+Math.cos(mid)*outerR,cy+Math.sin(mid)*outerR);
+      ctx.lineTo(cx+Math.cos(mid)*r2,cy+Math.sin(mid)*r2);
+      ctx.strokeStyle=`rgba(255,85,32,${.4+t2*.6})`;ctx.lineWidth=Math.max(.8,(ea-sa)*outerR*.7);ctx.stroke();
     }
-    const startAngle = (i / N) * Math.PI * 2 - Math.PI / 2;
-    const endAngle   = ((i + 1) / N) * Math.PI * 2 - Math.PI / 2;
-
-    // Base ring: dim green for match coverage
-    const matchFrac = m / n;
-    ctx.beginPath();
-    ctx.arc(cx, cy, (innerR + outerR) / 2, startAngle, endAngle);
-    ctx.strokeStyle = `rgba(125,234,19,${.08 + matchFrac * .28})`;
-    ctx.lineWidth = outerR - innerR - 1;
-    ctx.stroke();
-
-    // Mismatch spikes — radiate outward
-    if (mm > 0) {
-      const t = mm / n, ang = (startAngle + endAngle) / 2;
-      const r1 = outerR, r2 = outerR + t * 8;
-      ctx.beginPath();
-      ctx.moveTo(cx + Math.cos(ang) * r1, cy + Math.sin(ang) * r1);
-      ctx.lineTo(cx + Math.cos(ang) * r2, cy + Math.sin(ang) * r2);
-      ctx.strokeStyle = `rgba(255,85,32,${.4 + t * .6})`;
-      ctx.lineWidth = Math.max(.8, (endAngle - startAngle) * r1 * .7);
-      ctx.stroke();
-    }
-
-    // Gap marks — dots on inner edge
-    if (gp > 0) {
-      const ang = (startAngle + endAngle) / 2;
-      ctx.beginPath();
-      ctx.arc(cx + Math.cos(ang) * (innerR - 3), cy + Math.sin(ang) * (innerR - 3), 1, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(119,51,221,.8)'; ctx.fill();
+    if(gp>0){
+      ctx.beginPath();ctx.arc(cx+Math.cos(mid)*(innerR-3),cy+Math.sin(mid)*(innerR-3),1,0,Math.PI*2);
+      ctx.fillStyle='rgba(119,51,221,.8)';ctx.fill();
     }
   }
+  ctx.fillStyle='rgba(255,255,255,.18)';ctx.font='bold 7px "Share Tech Mono"';ctx.textAlign='center';
+  ctx.fillText('CIRCOS',cx,cy-3);
+  ctx.font='6px "Share Tech Mono"';ctx.fillStyle='rgba(125,234,19,.28)';
+  ctx.fillText((positions.length/1000).toFixed(1)+'k bp',cx,cy+7);
 
-  // Center label
-  ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.font = 'bold 7px "Share Tech Mono"';
-  ctx.textAlign = 'center';
-  ctx.fillText('CIRCOS', cx, cy - 3);
-  ctx.font = '6px "Share Tech Mono"';
-  ctx.fillStyle = 'rgba(125,234,19,.3)';
-  ctx.fillText((positions.length / 1000).toFixed(1) + 'k bp', cx, cy + 7);
+  CHART.circ={segs,cx,cy,outerR,innerR};
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DOT PLOT / SYNTENY MAP  (right panel, top)
-// X = pos in genome A, Y = pos in genome B — alignment path through sequence space
+// DOT PLOT
 // ─────────────────────────────────────────────────────────────────────────────
 
-function renderDotPlot(positions) {
-  const { ctx, W, H } = setupCanvas('cvs-dot');
-  const PAD = 14;
-  const pw = W - PAD * 2, ph = H - PAD * 2;
-
-  // Background
-  ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.clearRect(0, 0, W, H);
-
-  // Subtle grid
-  ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth = .5;
-  [.25,.5,.75].forEach(f => {
-    const x = PAD + f * pw, y = PAD + f * ph;
-    ctx.beginPath(); ctx.moveTo(x, PAD); ctx.lineTo(x, PAD + ph); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(PAD + pw, y); ctx.stroke();
+function renderDotPlot(positions){
+  const{ctx,W,H}=setupCanvas('cvs-dot');
+  const PAD=14,pw=W-PAD*2,ph=H-PAD*2;
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=.5;
+  [.25,.5,.75].forEach(f=>{
+    ctx.beginPath();ctx.moveTo(PAD+f*pw,PAD);ctx.lineTo(PAD+f*pw,PAD+ph);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(PAD,PAD+f*ph);ctx.lineTo(PAD+pw,PAD+f*ph);ctx.stroke();
   });
+  ctx.strokeStyle='rgba(255,255,255,.07)';ctx.setLineDash([2,4]);ctx.lineWidth=.8;
+  ctx.beginPath();ctx.moveTo(PAD,PAD+ph);ctx.lineTo(PAD+pw,PAD);ctx.stroke();ctx.setLineDash([]);
 
-  // Reference diagonal (perfect synteny)
-  ctx.strokeStyle='rgba(255,255,255,.07)'; ctx.setLineDash([2,4]); ctx.lineWidth=.8;
-  ctx.beginPath(); ctx.moveTo(PAD, PAD+ph); ctx.lineTo(PAD+pw, PAD); ctx.stroke();
-  ctx.setLineDash([]);
+  let pA=0,pB=0;
+  const lenA=positions.filter(p=>p.a!=='-').length;
+  const lenB=positions.filter(p=>p.b!=='-').length;
+  const SAMPLE=Math.max(1,Math.floor(positions.length/2400));
 
-  // Compute actual seq positions and plot — sample for performance
-  let pA=0, pB=0;
-  const lenA = positions.filter(p=>p.a!=='-').length;
-  const lenB = positions.filter(p=>p.b!=='-').length;
-  const SAMPLE = Math.max(1, Math.floor(positions.length / 2400));
-
-  for (let i = 0; i < positions.length; i++) {
-    const p = positions[i];
-    if (p.a !== '-') pA++;
-    if (p.b !== '-') pB++;
-    if (i % SAMPLE !== 0) continue;
-    const px = PAD + (pA / lenA) * pw;
-    const py = PAD + ph - (pB / lenB) * ph;
-    if (p.type === 'match') {
-      ctx.fillStyle = 'rgba(125,234,19,.35)';
-      ctx.fillRect(px - .6, py - .6, 1.4, 1.4);
-    } else if (p.type === 'mismatch') {
-      ctx.fillStyle = 'rgba(255,85,32,.9)';
-      ctx.fillRect(px - 1.2, py - 1.2, 2.8, 2.8);
-    } else {
-      ctx.fillStyle = 'rgba(119,51,221,.85)';
-      ctx.fillRect(px - .8, py - .8, 2, 2);
-    }
+  for(let i=0;i<positions.length;i++){
+    const p=positions[i];
+    if(p.a!=='-')pA++;if(p.b!=='-')pB++;
+    if(i%SAMPLE!==0)continue;
+    const px=PAD+(pA/lenA)*pw,py=PAD+ph-(pB/lenB)*ph;
+    if(p.type==='match'){ctx.fillStyle='rgba(125,234,19,.35)';ctx.fillRect(px-.6,py-.6,1.4,1.4);}
+    else if(p.type==='mismatch'){ctx.fillStyle='rgba(255,85,32,.9)';ctx.fillRect(px-1.2,py-1.2,2.8,2.8);}
+    else{ctx.fillStyle='rgba(119,51,221,.85)';ctx.fillRect(px-.8,py-.8,2,2);}
   }
+  ctx.fillStyle='rgba(255,255,255,.22)';ctx.font='6.5px "Share Tech Mono"';
+  ctx.textAlign='left';ctx.fillText('B ↑',1,PAD+6);
+  ctx.textAlign='right';ctx.fillText('A →',W-1,H-1);
 
-  // Axis labels
-  ctx.fillStyle='rgba(255,255,255,.22)'; ctx.font='6.5px "Share Tech Mono"';
-  ctx.textAlign='left'; ctx.fillText('B ↑', 1, PAD + 6);
-  ctx.textAlign='right'; ctx.fillText('A →', W - 1, H - 1);
+  CHART.dot={W,H,PAD,lenA,lenB};
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SEQUENCE ALIGNMENT VIEWER  (right panel, bottom)
-// Finds the highest-divergence window and renders base-by-base comparison
+// SEQUENCE ALIGNMENT VIEWER
 // ─────────────────────────────────────────────────────────────────────────────
 
-function renderAlignment(positions, nameA, nameB) {
-  const WIN = 48, CHUNK = 24;
-  let maxDiv = 0, bestStart = 0;
-  for (let i = 0; i <= positions.length - WIN; i += WIN) {
-    let d = 0;
-    for (let j = i; j < i + WIN; j++) if (positions[j].type !== 'match') d++;
-    if (d > maxDiv) { maxDiv = d; bestStart = i; }
+function renderAlignment(positions,nameA,nameB){
+  const WIN=48,CHUNK=24;
+  let maxDiv=0,bestStart=0;
+  for(let i=0;i<=positions.length-WIN;i+=WIN){
+    let d=0;for(let j=i;j<i+WIN;j++)if(positions[j].type!=='match')d++;
+    if(d>maxDiv){maxDiv=d;bestStart=i;}
   }
-  const slice = positions.slice(bestStart, bestStart + WIN);
-  const lblA  = (nameA || 'A').substring(0, 4).toUpperCase();
-  const lblB  = (nameB || 'B').substring(0, 4).toUpperCase();
-  const startPos = slice[0]?.pos || 0, endPos = slice[slice.length-1]?.pos || 0;
-
-  function basesHTML(chunk) {
-    let rowA='', rowM='', rowB='';
-    chunk.forEach(p => {
-      const isM=(p.type==='match'), isMM=(p.type==='mismatch');
-      const cA = isM?'rgba(125,234,19,.55)':isMM?'#ff5520':'#7733dd';
-      const cB = cA;
-      const mid = isM
-        ? `<span style="color:rgba(255,255,255,.2)">│</span>`
-        : isMM
-        ? `<span style="color:rgba(255,85,32,.6)">×</span>`
-        : `<span style="color:rgba(119,51,221,.6)">─</span>`;
-      rowA += `<span style="color:${cA}">${p.a||'─'}</span>`;
-      rowM += mid;
-      rowB += `<span style="color:${cB}">${p.b||'─'}</span>`;
+  const slice=positions.slice(bestStart,bestStart+WIN);
+  const lblA=(nameA||'A').substring(0,4).toUpperCase(),lblB=(nameB||'B').substring(0,4).toUpperCase();
+  const sp=slice[0]?.pos||0,ep=slice[slice.length-1]?.pos||0;
+  function chunk2html(ch){
+    let a='',m='',b='';
+    ch.forEach(p=>{
+      const isM=p.type==='match',isMM=p.type==='mismatch';
+      const c=isM?'rgba(125,234,19,.55)':isMM?'#ff5520':'#7733dd';
+      const mid=isM?`<span style="color:rgba(255,255,255,.18)">│</span>`:isMM?`<span style="color:rgba(255,85,32,.55)">×</span>`:`<span style="color:rgba(119,51,221,.55)">─</span>`;
+      a+=`<span style="color:${c}">${p.a||'─'}</span>`;m+=mid;b+=`<span style="color:${c}">${p.b||'─'}</span>`;
     });
-    return `
-      <div class="align-row"><span class="albl">${lblA}</span><span class="abases">${rowA}</span></div>
-      <div class="align-row"><span class="albl"></span><span class="abases">${rowM}</span></div>
-      <div class="align-row"><span class="albl">${lblB}</span><span class="abases">${rowB}</span></div>`;
+    return`<div class="align-row"><span class="albl">${lblA}</span><span class="abases">${a}</span></div><div class="align-row"><span class="albl"></span><span class="abases">${m}</span></div><div class="align-row"><span class="albl">${lblB}</span><span class="abases">${b}</span></div>`;
   }
-
-  let html = `<div class="align-pos">pos ${startPos.toLocaleString()} ── ${endPos.toLocaleString()}</div>`;
-  for (let s = 0; s < WIN; s += CHUNK) {
-    html += `<div class="align-block" style="margin-bottom:${s+CHUNK<WIN?'6px':'0'}">${basesHTML(slice.slice(s, s+CHUNK))}</div>`;
-  }
-  document.getElementById('align-view').innerHTML = html;
+  let html=`<div class="align-pos">pos ${sp.toLocaleString()} ── ${ep.toLocaleString()}</div>`;
+  for(let s=0;s<WIN;s+=CHUNK)html+=`<div class="align-block" style="margin-bottom:${s+CHUNK<WIN?'6px':'0'}">${chunk2html(slice.slice(s,s+CHUNK))}</div>`;
+  document.getElementById('align-view').innerHTML=html;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// File loading
+// FILE LOADING
 // ─────────────────────────────────────────────────────────────────────────────
 
-function loadJSON(file) {
-  const reader = new FileReader();
-  reader.onload = async e => {
-    try {
-      setProgress('Parsing JSON…');
-      await yieldFrame();
-      const data = JSON.parse(e.target.result);
-      if (!data.positions || !data.meta) throw new Error("Invalid JSON.");
+function loadJSON(file){
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    try{
+      setProgress('Parsing JSON…');await yieldFrame();
+      const data=JSON.parse(e.target.result);
+      if(!data.positions||!data.meta)throw new Error('Invalid JSON.');
 
       buildPointCloud(data);
+      matchRateArray=buildMatchRateArray(data.positions,180);
 
-      // Populate HUD text
-      const s = data.meta.stats;
-      document.getElementById('sp-a').textContent = data.meta.species_a.name.toUpperCase();
-      document.getElementById('sp-b').textContent = data.meta.species_b.name.toUpperCase();
-      document.getElementById('hud-sub').textContent =
-        (data.meta.label||data.meta.pair_id||'').replace(/_/g,' ') + '  ·  ' + data.meta.alignment_length.toLocaleString() + ' bp';
-      document.getElementById('hud-identity').textContent = s.identity_pct + '%';
-      document.getElementById('stat-m') .textContent = '▪  ' + s.match    .toLocaleString() + '  match';
-      document.getElementById('stat-mm').textContent = '▪  ' + s.mismatch .toLocaleString() + '  mismatch';
-      document.getElementById('stat-g') .textContent = '▪  ' + s.gap      .toLocaleString() + '  gap';
+      const s=data.meta.stats;
+      document.getElementById('sp-a').textContent=data.meta.species_a.name.toUpperCase();
+      document.getElementById('sp-b').textContent=data.meta.species_b.name.toUpperCase();
+      document.getElementById('hud-sub').textContent=(data.meta.label||data.meta.pair_id||'').replace(/_/g,' ')+'  ·  '+data.meta.alignment_length.toLocaleString()+' bp';
+      document.getElementById('hud-identity').textContent=s.identity_pct+'%';
+      document.getElementById('stat-m') .textContent='▪  '+s.match    .toLocaleString()+'  match';
+      document.getElementById('stat-mm').textContent='▪  '+s.mismatch .toLocaleString()+'  mismatch';
+      document.getElementById('stat-g') .textContent='▪  '+s.gap      .toLocaleString()+'  gap';
 
-      // Show HUD + panels
       document.getElementById('drop-zone').classList.add('hidden');
       document.getElementById('hud').classList.remove('hidden');
-      document.getElementById('load-btn').style.display = 'block';
-      document.title = `GenomeDiff — ${data.meta.species_a.name} × ${data.meta.species_b.name}`;
+      document.getElementById('load-btn').style.display='block';
+      document.getElementById('audio-btn').style.display='block';
+      document.title=`GenomeDiff — ${data.meta.species_a.name} × ${data.meta.species_b.name}`;
 
-      // Render all panels (must happen after HUD is visible so offsetWidth/Height are real)
       await yieldFrame();
       setProgress('Rendering panels…');
-      const pos = data.positions;
-      renderSNPDensity(pos);
-      renderHeatmap(pos);
-      renderCircos(pos);
-      renderDotPlot(pos);
-      renderAlignment(pos, data.meta.species_a.name, data.meta.species_b.name);
+      const pos=data.positions;
+      renderSNPDensity(pos); renderHeatmap(pos); renderCircos(pos);
+      renderDotPlot(pos); renderAlignment(pos,data.meta.species_a.name,data.meta.species_b.name);
+      setupHoverListeners();
       setProgress('');
-
-    } catch (err) { setProgress(''); alert('Failed to load: ' + err.message); }
+    }catch(err){setProgress('');alert('Failed to load: '+err.message);}
   };
   reader.readAsText(file);
 }
 
 // Event wiring
-const dz = document.getElementById('drop-zone');
-dz.addEventListener('click',     ()  => document.getElementById('file-input').click());
-dz.addEventListener('dragover',  e   => { e.preventDefault(); dz.classList.add('drag-over'); });
-dz.addEventListener('dragleave', ()  => dz.classList.remove('drag-over'));
-dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); const f=e.dataTransfer.files[0]; if(f) loadJSON(f); });
-document.getElementById('file-input').addEventListener('change', e => { if(e.target.files[0]) loadJSON(e.target.files[0]); });
-document.getElementById('load-btn').addEventListener('click', () => {
-  disposeAll(); rotVelX=rotVelY=edgeBlend=0; pivot.rotation.set(-.25,0,0);
-  ['match','mismatch','gap'].forEach(t=>{ vis[t]=true; document.getElementById('tog-'+t).classList.remove('muted'); });
+const dz=document.getElementById('drop-zone');
+dz.addEventListener('click',()=>document.getElementById('file-input').click());
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)loadJSON(f);});
+document.getElementById('file-input').addEventListener('change',e=>{if(e.target.files[0])loadJSON(e.target.files[0]);});
+document.getElementById('load-btn').addEventListener('click',()=>{
+  disposeAll();rotVelX=rotVelY=edgeBlend=0;pivot.rotation.set(-.25,0,0);matchRateArray=null;
+  Audio.stop();document.getElementById('audio-btn').classList.remove('active');
+  ['match','mismatch','gap'].forEach(t=>{vis[t]=true;document.getElementById('tog-'+t).classList.remove('muted');});
   dz.classList.remove('hidden');
   document.getElementById('hud').classList.add('hidden');
   document.getElementById('load-btn').style.display='none';
+  document.getElementById('audio-btn').style.display='none';
 });
 
-function setProgress(msg) { const el=document.getElementById('progress'); el.textContent=msg; el.style.display=msg?'block':'none'; }
-function yieldFrame() { return new Promise(r=>requestAnimationFrame(()=>setTimeout(r,0))); }
+function setProgress(msg){const el=document.getElementById('progress');el.textContent=msg;el.style.display=msg?'block':'none';}
+function yieldFrame(){return new Promise(r=>requestAnimationFrame(()=>setTimeout(r,0)));}
 </script>
 </body>
 </html>

@@ -665,12 +665,12 @@ const Bells = (() => {
     comp.connect(actx.destination);
 
     reverb = makeReverb(actx, 4.2, 5.5);
-    wetG = actx.createGain(); wetG.gain.value = 0.48; reverb.connect(wetG); wetG.connect(comp);
-    dryG = actx.createGain(); dryG.gain.value = 0.12; dryG.connect(comp);
+    wetG = actx.createGain(); wetG.gain.value = 0.60; reverb.connect(wetG); wetG.connect(comp);
+    dryG = actx.createGain(); dryG.gain.value = 0.08; dryG.connect(comp);
   }
 
   // Bell partial ratios and their relative amplitudes + decay times
-  const PARTIALS = [[1, .16, 1.6], [2.756, .09, .85], [5.404, .04, .42], [8.933, .02, .22]];
+  const PARTIALS = [[1, .06, 1.6], [2.756, .035, .85], [5.404, .016, .42], [8.933, .008, .22]];
 
   function ring(freq, vel) {
     ensure();
@@ -710,7 +710,7 @@ const Bells = (() => {
     const yShift = (0.5 - y / window.innerHeight) * 0.04; // ±4% pitch bend
     // Speed → velocity
     const speed = Math.min(1, Math.sqrt(dx*dx + dy*dy) / 35);
-    ring(freq * (1 + yShift), 0.09 + speed * 0.14);
+    ring(freq * (1 + yShift), 0.06 + speed * 0.08);
   }
 
   function start() { on = true; ensure(); }

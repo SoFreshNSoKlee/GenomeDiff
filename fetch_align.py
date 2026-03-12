@@ -7,11 +7,19 @@ and writes a JSON file consumed by the HTML visualizer (Part 2).
 
 Usage:
     python fetch_align.py [--pair PAIR_ID] [--config CONFIG] [--out OUTPUT]
-    python fetch_align.py --pair mammoth_vs_elephant
-    python fetch_align.py --pair human_vs_chimp --out human_chimp.json
+    python fetch_align.py --pair mammoth_vs_african_elephant
+    python fetch_align.py --pair dodo_vs_nicobar_pigeon --out dodo_pigeon.json
+    python fetch_align.py --pair thylacine_vs_tasmanian_devil
 
-The species pair is fully defined in species_config.json — no code changes
-needed to swap in different animals.
+Available pairs (see species_config.json):
+    mammoth_vs_african_elephant   Woolly Mammoth vs African Elephant
+    mammoth_vs_asian_elephant     Woolly Mammoth vs Asian Elephant
+    dodo_vs_nicobar_pigeon        Dodo vs Nicobar Pigeon
+    thylacine_vs_dunnart          Thylacine vs Fat-tailed Dunnart
+    thylacine_vs_tasmanian_devil  Thylacine vs Tasmanian Devil
+
+Species with no 'accession' in config are resolved automatically via
+Entrez esearch — the longest matching sequence is chosen.
 """
 
 import argparse
@@ -26,6 +34,48 @@ from Bio.Align import PairwiseAligner
 
 # ── NCBI requires a contact email ────────────────────────────────────────────
 Entrez.email = "genomediff@example.com"
+
+
+def resolve_accession(species: dict, retries: int = 3) -> str:
+    """
+    Return the accession to use for this species entry.
+    Uses 'accession' if present; otherwise runs an Entrez esearch on
+    'search_term' to find the longest complete mitochondrial genome.
+    """
+    if species.get("accession"):
+        return species["accession"]
+
+    search_term = species.get("search_term")
+    if not search_term:
+        raise ValueError(
+            f"Species '{species.get('name')}' has neither 'accession' nor 'search_term'."
+        )
+
+    print(f"  No accession for {species['name']} — searching: {search_term!r}", flush=True)
+    for attempt in range(retries):
+        try:
+            handle = Entrez.esearch(db="nucleotide", term=search_term, retmax=8, sort="relevance")
+            result = Entrez.read(handle)
+            handle.close()
+            ids = result.get("IdList", [])
+            if not ids:
+                raise RuntimeError("No results found for search term.")
+            # Fetch summaries and pick the longest sequence (most complete genome)
+            handle = Entrez.esummary(db="nucleotide", id=",".join(ids))
+            summaries = Entrez.read(handle)
+            handle.close()
+            best = max(summaries, key=lambda s: int(s.get("Length", 0)))
+            acc = best["AccessionVersion"]
+            print(f"  Resolved: {acc}  ({best.get('Title', '')[:72]})")
+            return acc
+        except Exception as exc:
+            wait = 2 ** attempt
+            print(f"  Search attempt {attempt + 1}/{retries} failed: {exc}")
+            if attempt < retries - 1:
+                time.sleep(wait)
+    raise RuntimeError(
+        f"Could not resolve accession for '{species.get('name')}' via Entrez search."
+    )
 
 
 def fetch_sequence(accession: str, retries: int = 3) -> str:
@@ -123,8 +173,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--pair",
-        default="mammoth_vs_elephant",
-        help="Species pair ID from species_config.json (default: mammoth_vs_elephant)",
+        default="mammoth_vs_african_elephant",
+        help="Species pair ID from species_config.json (default: mammoth_vs_african_elephant)",
     )
     parser.add_argument(
         "--config",
@@ -161,9 +211,11 @@ def main() -> None:
     print(f"Species B : {sp_b['name']}  [{sp_b['accession']}]")
     print()
 
-    # ── 2. Fetch sequences ────────────────────────────────────────────────────
-    seq_a = fetch_sequence(sp_a["accession"])
-    seq_b = fetch_sequence(sp_b["accession"])
+    # ── 2. Resolve accessions (direct or via esearch) then fetch ─────────────
+    acc_a = resolve_accession(sp_a)
+    acc_b = resolve_accession(sp_b)
+    seq_a = fetch_sequence(acc_a)
+    seq_b = fetch_sequence(acc_b)
 
     # ── 3. Align ──────────────────────────────────────────────────────────────
     aligned_a, aligned_b = align_sequences(seq_a, seq_b)
@@ -183,12 +235,12 @@ def main() -> None:
             "label": pair["label"],
             "species_a": {
                 "name": sp_a["name"],
-                "accession": sp_a["accession"],
+                "accession": acc_a,
                 "length": len(seq_a),
             },
             "species_b": {
                 "name": sp_b["name"],
-                "accession": sp_b["accession"],
+                "accession": acc_b,
                 "length": len(seq_b),
             },
             "alignment_length": len(aligned_a),

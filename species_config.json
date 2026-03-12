@@ -1,43 +1,75 @@
 {
-  "_comment": "Add species pairs here. Each pair is fetched and aligned independently.",
+  "_comment": "Species pairs for GenomeDiff. 'accession' = direct NCBI fetch. 'search_term' = Entrez esearch fallback used when accession is absent or fails.",
   "pairs": [
     {
-      "id": "mammoth_vs_elephant",
+      "id": "mammoth_vs_african_elephant",
       "label": "Woolly Mammoth vs African Elephant",
       "species_a": {
         "name": "Woolly Mammoth",
-        "search_term": "Mammuthus primigenius[Organism] mitochondrion complete genome",
         "accession": "NC_007596",
-        "color_match": "#2196F3",
-        "color_mismatch": "#FF5722",
-        "color_gap": "#9E9E9E"
+        "search_term": "Mammuthus primigenius[Organism] mitochondrion complete genome"
       },
       "species_b": {
         "name": "African Elephant",
-        "search_term": "Loxodonta africana[Organism] mitochondrion complete genome",
         "accession": "NC_000934",
-        "color_match": "#2196F3",
-        "color_mismatch": "#FF5722",
-        "color_gap": "#9E9E9E"
+        "search_term": "Loxodonta africana[Organism] mitochondrion complete genome"
+      }
+    },
+    {
+      "id": "mammoth_vs_asian_elephant",
+      "label": "Woolly Mammoth vs Asian Elephant",
+      "species_a": {
+        "name": "Woolly Mammoth",
+        "accession": "NC_007596",
+        "search_term": "Mammuthus primigenius[Organism] mitochondrion complete genome"
+      },
+      "species_b": {
+        "name": "Asian Elephant",
+        "accession": "NC_005129",
+        "search_term": "Elephas maximus[Organism] mitochondrion complete genome"
+      }
+    },
+    {
+      "id": "dodo_vs_nicobar_pigeon",
+      "label": "Dodo vs Nicobar Pigeon",
+      "_note": "Dodo mtDNA assembled from ancient DNA (Soares et al. 2016 BMC Ecol Evol). Resolved via search_term.",
+      "species_a": {
+        "name": "Dodo",
+        "search_term": "Raphus cucullatus[Organism] mitochondrion complete genome"
+      },
+      "species_b": {
+        "name": "Nicobar Pigeon",
+        "search_term": "Caloenas nicobarica[Organism] mitochondrion complete genome"
+      }
+    },
+    {
+      "id": "thylacine_vs_dunnart",
+      "label": "Thylacine vs Fat-tailed Dunnart",
+      "_note": "Thylacine NC_011944 confirmed (Miller et al. 2009). Dunnart resolved via search_term.",
+      "species_a": {
+        "name": "Thylacine",
+        "accession": "NC_011944",
+        "search_term": "Thylacinus cynocephalus[Organism] mitochondrion complete genome"
+      },
+      "species_b": {
+        "name": "Fat-tailed Dunnart",
+        "search_term": "Sminthopsis crassicaudata[Organism] mitochondrion complete genome"
+      }
+    },
+    {
+      "id": "thylacine_vs_tasmanian_devil",
+      "label": "Thylacine vs Tasmanian Devil",
+      "_note": "Thylacine NC_011944, Tasmanian Devil NC_017081 (both confirmed RefSeq).",
+      "species_a": {
+        "name": "Thylacine",
+        "accession": "NC_011944",
+        "search_term": "Thylacinus cynocephalus[Organism] mitochondrion complete genome"
+      },
+      "species_b": {
+        "name": "Tasmanian Devil",
+        "accession": "NC_017081",
+        "search_term": "Sarcophilus harrisii[Organism] mitochondrion complete genome"
       }
     }
-  ],
-  "_swap_example": {
-    "id": "human_vs_chimp",
-    "label": "Human vs Chimpanzee",
-    "species_a": {
-      "name": "Human",
-      "accession": "NC_012920",
-      "color_match": "#4CAF50",
-      "color_mismatch": "#F44336",
-      "color_gap": "#9E9E9E"
-    },
-    "species_b": {
-      "name": "Chimpanzee",
-      "accession": "NC_001643",
-      "color_match": "#4CAF50",
-      "color_mismatch": "#F44336",
-      "color_gap": "#9E9E9E"
-    }
-  }
+  ]
 }

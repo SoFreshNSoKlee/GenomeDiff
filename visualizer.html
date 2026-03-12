@@ -83,7 +83,7 @@ html, body { width:100%; height:100%; overflow:hidden; background:#000; font-fam
 
 /* ── Tooltip ───────────────────────────────────────────────────────────── */
 #tooltip {
-  position:fixed; z-index:400; pointer-events:none;
+  position:fixed; z-index:600; pointer-events:none;
   background:rgba(0,5,14,.94); border:1px solid rgba(125,234,19,.18);
   border-radius:6px; padding:9px 13px; font-family:'Share Tech Mono',monospace;
   font-size:.58rem; letter-spacing:.08em; line-height:1.9;
@@ -341,11 +341,13 @@ function closeModal() { document.getElementById('modal-overlay').classList.remov
 
 function renderModalChart(key) {
   if (!lastPositions) return;
+  MODAL_CHART._key = key;
   if (key === 'align') {
     renderAlignment(lastPositions, lastNameA, lastNameB, document.getElementById('modal-align-view'));
     return;
   }
   const cvs = document.getElementById('modal-chart');
+  cvs.style.cursor = 'crosshair';
   switch(key) {
     case 'snp':  renderSNPDensity(lastPositions, cvs);  break;
     case 'heat': renderHeatmap(lastPositions, cvs);     break;
@@ -353,6 +355,52 @@ function renderModalChart(key) {
     case 'dot':  renderDotPlot(lastPositions, cvs);     break;
   }
 }
+
+// ── Modal chart hover (single static handler, dispatches by MODAL_CHART._key) ─
+(function() {
+  const mc = document.getElementById('modal-chart');
+  mc.addEventListener('mouseleave', hideTip);
+  mc.addEventListener('mousemove', e => {
+    moveTip(e);
+    const key = MODAL_CHART._key;
+    const rect = mc.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+
+    if (key === 'snp' && MODAL_CHART.snp) {
+      const { bars, PAD, bw } = MODAL_CHART.snp;
+      const idx = Math.floor((mx - PAD.l) / bw);
+      if (idx < 0 || idx >= bars.length) { hideTip(); return; }
+      const b = bars[idx];
+      showTip(`<span style="color:rgba(125,234,19,.75)">SNP DENSITY</span><br>Window ${idx+1} of ${bars.length}<br>Divergence: <span style="color:#ff8850">${(b.rate*100).toFixed(2)}%</span><br>Range: ${b.start.toLocaleString()} – ${b.end.toLocaleString()} bp`, e);
+
+    } else if (key === 'heat' && MODAL_CHART.heat) {
+      const { data, TRACKS, LBL, rowH, colW } = MODAL_CHART.heat;
+      if (mx < LBL) { hideTip(); return; }
+      const col = Math.floor((mx - LBL) / colW), row = Math.floor(my / rowH);
+      if (row < 0 || row >= TRACKS.length || col < 0 || col >= (data[0]||[]).length) { hideTip(); return; }
+      const t = TRACKS[row], val = data[row][col], [r,g,b] = t.rgb;
+      showTip(`<span style="color:rgba(${r},${g},${b},.85)">${t.label}</span><br>Window ${col+1} of ${data[0].length}<br>Value: <span style="color:rgba(${r},${g},${b},.9)">${(val*100).toFixed(1)}%</span>`, e);
+
+    } else if (key === 'circ' && MODAL_CHART.circ) {
+      const { segs, cx, cy, innerR, outerR } = MODAL_CHART.circ;
+      const dx = mx - cx, dy = my - cy, dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < innerR - 6 || dist > outerR + 12) { hideTip(); return; }
+      let ang = Math.atan2(dy, dx) + Math.PI/2; if (ang < 0) ang += Math.PI*2;
+      const idx = Math.min(Math.floor((ang/(Math.PI*2)) * segs.length), segs.length - 1);
+      const s = segs[idx];
+      showTip(`<span style="color:rgba(125,234,19,.75)">CIRCOS RING</span><br>${s.start.toLocaleString()} – ${s.end.toLocaleString()} bp<br>Match: <span style="color:rgba(125,234,19,.8)">${(s.matchR*100).toFixed(1)}%</span>  SNP: <span style="color:#ff5520">${(s.snpR*100).toFixed(1)}%</span>  Gap: <span style="color:#9955ff">${(s.gapR*100).toFixed(1)}%</span>`, e);
+
+    } else if (key === 'dot' && MODAL_CHART.dot) {
+      const { W, H, PAD, lenA, lenB } = MODAL_CHART.dot;
+      const fA = (mx - PAD) / (W - PAD*2), fB = 1 - (my - PAD) / (H - PAD*2);
+      if (fA < 0 || fA > 1 || fB < 0 || fB > 1) { hideTip(); return; }
+      showTip(`<span style="color:rgba(125,234,19,.75)">DOT MATRIX</span><br>Species A: <span style="color:rgba(125,234,19,.8)">${Math.round(fA*lenA).toLocaleString()} bp</span><br>Species B: <span style="color:rgba(68,136,255,.8)">${Math.round(fB*lenB).toLocaleString()} bp</span>`, e);
+
+    } else {
+      hideTip();
+    }
+  });
+})();
 
 document.getElementById('modal-close').addEventListener('click', closeModal);
 document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === document.getElementById('modal-overlay')) closeModal(); });
@@ -381,6 +429,7 @@ function hideTip() { TIP.classList.remove('vis'); }
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CHART = {};
+const MODAL_CHART = {};
 
 function setupHoverListeners() {
   // ── SNP Density ───────────────────────────────────────────────────────────
@@ -616,12 +665,12 @@ const Bells = (() => {
     comp.connect(actx.destination);
 
     reverb = makeReverb(actx, 4.2, 5.5);
-    wetG = actx.createGain(); wetG.gain.value = 0.72; reverb.connect(wetG); wetG.connect(comp);
-    dryG = actx.createGain(); dryG.gain.value = 0.28; dryG.connect(comp);
+    wetG = actx.createGain(); wetG.gain.value = 0.48; reverb.connect(wetG); wetG.connect(comp);
+    dryG = actx.createGain(); dryG.gain.value = 0.12; dryG.connect(comp);
   }
 
   // Bell partial ratios and their relative amplitudes + decay times
-  const PARTIALS = [[1, .50, 1.6], [2.756, .28, .85], [5.404, .14, .42], [8.933, .07, .22]];
+  const PARTIALS = [[1, .16, 1.6], [2.756, .09, .85], [5.404, .04, .42], [8.933, .02, .22]];
 
   function ring(freq, vel) {
     ensure();
@@ -661,7 +710,7 @@ const Bells = (() => {
     const yShift = (0.5 - y / window.innerHeight) * 0.04; // ±4% pitch bend
     // Speed → velocity
     const speed = Math.min(1, Math.sqrt(dx*dx + dy*dy) / 35);
-    ring(freq * (1 + yShift), 0.22 + speed * 0.48);
+    ring(freq * (1 + yShift), 0.09 + speed * 0.14);
   }
 
   function start() { on = true; ensure(); }
@@ -918,7 +967,7 @@ function renderSNPDensity(positions,cvs){
   ctx.textAlign='left';ctx.fillText('0',PAD.l,H-2);
   ctx.textAlign='right';ctx.fillText((positions.length/1000).toFixed(0)+'k bp',W-PAD.r,H-2);
 
-  if(!cvs) CHART.snp={bars,PAD,bw};
+  if(!cvs) CHART.snp={bars,PAD,bw}; else MODAL_CHART.snp={bars,PAD,bw};
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -957,7 +1006,7 @@ function renderHeatmap(positions,cvs){
   ctx.fillStyle='rgba(255,255,255,.15)';ctx.font='6px "Share Tech Mono"';
   [0,.5,1].forEach(f=>{const x=LBL+f*(W-LBL);ctx.textAlign=f===0?'left':f===1?'right':'center';ctx.fillText(Math.round(f*positions.length/1000)+'k',x,H);});
 
-  if(!cvs) CHART.heat={data,TRACKS,LBL,rowH,colW,W,H};
+  if(!cvs) CHART.heat={data,TRACKS,LBL,rowH,colW,W,H}; else MODAL_CHART.heat={data,TRACKS,LBL,rowH,colW,W,H};
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -999,7 +1048,7 @@ function renderCircos(positions,cvs){
   ctx.font='6px "Share Tech Mono"';ctx.fillStyle='rgba(125,234,19,.28)';
   ctx.fillText((positions.length/1000).toFixed(1)+'k bp',cx,cy+7);
 
-  if(!cvs) CHART.circ={segs,cx,cy,outerR,innerR};
+  if(!cvs) CHART.circ={segs,cx,cy,outerR,innerR}; else MODAL_CHART.circ={segs,cx,cy,outerR,innerR};
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1036,7 +1085,7 @@ function renderDotPlot(positions,cvs){
   ctx.textAlign='left';ctx.fillText('B ↑',1,PAD+6);
   ctx.textAlign='right';ctx.fillText('A →',W-1,H-1);
 
-  if(!cvs) CHART.dot={W,H,PAD,lenA,lenB};
+  if(!cvs) CHART.dot={W,H,PAD,lenA,lenB}; else MODAL_CHART.dot={W,H,PAD,lenA,lenB};
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -10,143 +10,138 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:'Share Tech Mono','Consolas',monospace; }
 
-html, body {
-  width:100%; height:100%; overflow:hidden;
-  background:#000;
-  font-family:'Share Tech Mono', 'Consolas', monospace;
-}
-
-/* ── Drop zone ───────────────────────────────────────────────────────────── */
+/* ── Drop zone ─────────────────────────────────────────────────────────── */
 #drop-zone {
-  position:fixed; top:50%; left:50%;
-  transform:translate(-50%,-50%);
-  z-index:100;
-  border:1px solid rgba(125,234,19,0.18);
-  border-radius:14px;
-  padding:52px 72px;
-  text-align:center;
-  cursor:pointer;
-  background:rgba(0,0,0,0.84);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  transition:all 0.22s;
-  user-select:none;
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  z-index:100; border:1px solid rgba(125,234,19,.18); border-radius:14px;
+  padding:52px 72px; text-align:center; cursor:pointer;
+  background:rgba(0,0,0,.84); backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px); transition:all .22s; user-select:none;
 }
 #drop-zone:hover, #drop-zone.drag-over {
-  border-color:rgba(125,234,19,0.55);
-  box-shadow:0 0 55px rgba(125,234,19,0.07);
+  border-color:rgba(125,234,19,.55); box-shadow:0 0 55px rgba(125,234,19,.07);
 }
 #drop-zone h2 {
-  font-family:'Orbitron', monospace;
-  font-size:1.05rem; font-weight:500;
-  letter-spacing:0.32em; text-transform:uppercase;
-  color:rgba(255,255,255,0.78); margin-bottom:20px;
+  font-family:'Orbitron',monospace; font-size:1.05rem; font-weight:500;
+  letter-spacing:.32em; text-transform:uppercase; color:rgba(255,255,255,.78); margin-bottom:20px;
 }
-#drop-zone p {
-  font-size:0.72rem; color:rgba(255,255,255,0.28);
-  letter-spacing:0.12em; line-height:2.3;
-}
-#drop-zone strong { color:rgba(125,234,19,0.65); font-weight:normal; }
+#drop-zone p { font-size:.72rem; color:rgba(255,255,255,.28); letter-spacing:.12em; line-height:2.3; }
+#drop-zone strong { color:rgba(125,234,19,.65); font-weight:normal; }
 #drop-zone.hidden { display:none; }
 
-/* ── HUD ─────────────────────────────────────────────────────────────────── */
+/* ── HUD wrapper ───────────────────────────────────────────────────────── */
 #hud { position:fixed; inset:0; pointer-events:none; z-index:50; }
 #hud.hidden { display:none; }
 
-/* Headline — top center */
+/* ── Headline ──────────────────────────────────────────────────────────── */
 #hud-headline {
-  position:absolute; top:36px; left:50%;
-  transform:translateX(-50%);
+  position:absolute; top:28px; left:50%; transform:translateX(-50%);
   text-align:center; white-space:nowrap;
 }
 #hud-headline .species {
-  display:block;
-  font-family:'Orbitron', monospace;
-  font-size:1.6rem; font-weight:700;
-  letter-spacing:0.12em; text-transform:uppercase;
-  color:rgba(255,255,255,0.92);
+  display:block; font-family:'Orbitron',monospace; font-size:1.45rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.92);
 }
-.x-sep { color:#7DEA13; margin:0 0.5em; opacity:0.9; }
+.x-sep { color:#7DEA13; margin:0 .5em; opacity:.9; }
 #hud-headline .sub {
-  display:block; margin-top:9px;
-  font-size:0.56rem; letter-spacing:0.24em;
-  color:rgba(255,255,255,0.18); text-transform:uppercase;
+  display:block; margin-top:7px; font-size:.54rem;
+  letter-spacing:.24em; color:rgba(255,255,255,.18); text-transform:uppercase;
 }
 
-/* Stats — bottom left */
-#hud-stats {
-  position:absolute; bottom:44px; left:44px;
+/* ── Side panels shared ────────────────────────────────────────────────── */
+.hud-panel {
+  position:absolute; width:228px;
+  background:rgba(1,6,14,.84);
+  border:1px solid rgba(125,234,19,.1);
+  border-radius:8px; backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px); overflow:hidden;
 }
+#panel-left  { left:22px;  top:50%; transform:translateY(-50%); }
+#panel-right { right:22px; top:50%; transform:translateY(-50%); }
+
+.psec { padding:10px 12px 10px; }
+.pdiv { height:1px; background:rgba(125,234,19,.07); margin:0 12px; }
+
+.ptitle {
+  font-family:'Orbitron',monospace; font-size:.46rem;
+  letter-spacing:.26em; text-transform:uppercase;
+  color:rgba(125,234,19,.6); margin-bottom:7px;
+  display:flex; justify-content:space-between; align-items:baseline;
+}
+.psub { font-family:'Share Tech Mono',monospace; font-size:.46rem; letter-spacing:.1em; color:rgba(255,255,255,.18); }
+
+/* Canvases inside panels — CSS size; JS sets buffer size via DPR */
+.pcvs { display:block; width:100%; border-radius:3px; }
+#cvs-snp  { height:72px; }
+#cvs-heat { height:124px; }
+#cvs-dot  { height:168px; }
+#cvs-circ { height:100px; }
+
+/* ── Alignment viewer ──────────────────────────────────────────────────── */
+#align-view { font-family:'Share Tech Mono',monospace; font-size:7px; line-height:1.7; }
+.align-pos { font-size:6.5px; letter-spacing:.1em; color:rgba(255,255,255,.22); text-transform:uppercase; margin-bottom:5px; }
+.align-block { margin-bottom:4px; }
+.align-row { display:flex; align-items:center; }
+.albl { color:rgba(255,255,255,.28); flex-shrink:0; width:26px; letter-spacing:.06em; }
+.abases { letter-spacing:.5px; }
+
+/* ── Bottom-left stats ─────────────────────────────────────────────────── */
+#hud-stats { position:absolute; bottom:36px; left:36px; }
 #hud-identity {
-  font-family:'Orbitron', monospace;
-  font-size:6.2rem; font-weight:700;
-  line-height:1; letter-spacing:-0.02em;
-  color:rgba(255,255,255,0.9);
+  font-family:'Orbitron',monospace; font-size:3rem; font-weight:700;
+  line-height:1; letter-spacing:-.01em; color:rgba(255,255,255,.9);
 }
 #hud-identity-label {
-  font-size:0.55rem; letter-spacing:0.34em;
-  color:rgba(255,255,255,0.2); text-transform:uppercase;
-  margin-top:4px; margin-bottom:20px;
+  font-size:.52rem; letter-spacing:.34em; color:rgba(255,255,255,.2);
+  text-transform:uppercase; margin-top:3px; margin-bottom:14px;
 }
-.stat-row { font-size:0.63rem; letter-spacing:0.12em; line-height:2.1; text-transform:uppercase; }
-.stat-match    { color:rgba(125,234,19,0.65); }
-.stat-mismatch { color:rgba(255,90,30,0.72); }
-.stat-gap      { color:rgba(130,60,220,0.62); }
+.stat-row { font-size:.6rem; letter-spacing:.12em; line-height:2; text-transform:uppercase; }
+.stat-match    { color:rgba(125,234,19,.65); }
+.stat-mismatch { color:rgba(255,90,30,.72); }
+.stat-gap      { color:rgba(130,60,220,.62); }
 
-/* Legend — bottom right */
+/* ── Legend ────────────────────────────────────────────────────────────── */
 #hud-legend {
-  position:absolute; bottom:44px; right:44px;
-  display:flex; flex-direction:column;
-  gap:8px; align-items:flex-end;
+  position:absolute; bottom:36px; right:36px;
+  display:flex; flex-direction:column; gap:7px; align-items:flex-end;
   pointer-events:all;
 }
 .legend-item {
-  display:flex; align-items:center; gap:10px;
-  font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase;
-  color:rgba(255,255,255,0.42);
-  cursor:pointer; padding:5px 10px;
+  display:flex; align-items:center; gap:9px;
+  font-size:.58rem; letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(255,255,255,.42); cursor:pointer; padding:4px 9px;
   border:1px solid transparent; border-radius:5px;
-  transition:all 0.15s; user-select:none;
+  transition:all .15s; user-select:none;
 }
-.legend-item:hover { color:rgba(255,255,255,0.75); border-color:rgba(255,255,255,0.1); }
-.legend-item.muted { color:rgba(255,255,255,0.16); }
-.legend-item.muted .legend-dot { opacity:0.18 !important; box-shadow:none !important; }
-.legend-dot {
-  width:7px; height:7px; border-radius:50%;
-  flex-shrink:0; transition:opacity 0.2s, box-shadow 0.2s;
-}
+.legend-item:hover { color:rgba(255,255,255,.75); border-color:rgba(255,255,255,.1); }
+.legend-item.muted { color:rgba(255,255,255,.16); }
+.legend-item.muted .legend-dot { opacity:.18!important; box-shadow:none!important; }
+.legend-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; transition:opacity .2s,box-shadow .2s; }
 .key-hint {
-  font-size:0.5rem; letter-spacing:0.16em; text-transform:uppercase;
-  color:rgba(255,255,255,0.13); cursor:pointer;
-  padding:3px 10px; margin-top:2px;
-  transition:color 0.15s; pointer-events:all;
+  font-size:.48rem; letter-spacing:.16em; text-transform:uppercase;
+  color:rgba(255,255,255,.13); cursor:pointer; padding:3px 9px; margin-top:1px;
+  transition:color .15s; pointer-events:all;
 }
-.key-hint:hover { color:rgba(255,255,255,0.3); }
+.key-hint:hover { color:rgba(255,255,255,.3); }
 
-/* Load button */
+/* ── Load button ───────────────────────────────────────────────────────── */
 #load-btn {
-  position:fixed; top:28px; right:32px; z-index:100;
-  background:transparent;
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:5px; color:rgba(255,255,255,0.22);
-  padding:7px 15px; font-size:0.57rem;
-  letter-spacing:0.16em; text-transform:uppercase;
-  cursor:pointer; font-family:'Share Tech Mono', monospace;
-  display:none; transition:all 0.2s;
+  position:fixed; top:26px; right:28px; z-index:100; background:transparent;
+  border:1px solid rgba(255,255,255,.08); border-radius:5px; color:rgba(255,255,255,.22);
+  padding:7px 14px; font-size:.56rem; letter-spacing:.16em; text-transform:uppercase;
+  cursor:pointer; font-family:'Share Tech Mono',monospace; display:none; transition:all .2s;
 }
-#load-btn:hover { border-color:rgba(125,234,19,0.3); color:rgba(125,234,19,0.65); }
+#load-btn:hover { border-color:rgba(125,234,19,.3); color:rgba(125,234,19,.65); }
 
-/* Progress */
+/* ── Progress ──────────────────────────────────────────────────────────── */
 #progress {
-  position:fixed; top:50%; left:50%;
-  transform:translate(-50%,-50%);
-  z-index:200; font-family:'Share Tech Mono', monospace;
-  font-size:0.65rem; letter-spacing:0.3em; text-transform:uppercase;
-  color:rgba(125,234,19,0.45); display:none;
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  z-index:200; font-family:'Share Tech Mono',monospace;
+  font-size:.65rem; letter-spacing:.3em; text-transform:uppercase;
+  color:rgba(125,234,19,.45); display:none;
 }
-
-/* Canvas cursor */
 canvas { cursor:grab; display:block; }
 canvas.dragging { cursor:grabbing; }
 </style>
@@ -157,12 +152,14 @@ canvas.dragging { cursor:grabbing; }
 <div id="drop-zone">
   <h2>GenomeDiff</h2>
   <p>Drop <strong>*.json</strong> here or click to browse<br>
-  <span style="opacity:0.45">generated by fetch_align.py</span></p>
+  <span style="opacity:.45">generated by fetch_align.py</span></p>
   <input type="file" id="file-input" accept=".json" style="display:none">
 </div>
 
 <!-- HUD -->
 <div id="hud" class="hidden">
+
+  <!-- Headline -->
   <div id="hud-headline">
     <span class="species">
       <span id="sp-a">—</span><span class="x-sep">×</span><span id="sp-b">—</span>
@@ -170,6 +167,38 @@ canvas.dragging { cursor:grabbing; }
     <span class="sub" id="hud-sub">—</span>
   </div>
 
+  <!-- LEFT PANEL: SNP Density + Heatmap -->
+  <div id="panel-left" class="hud-panel">
+    <div class="psec">
+      <div class="ptitle">SNP Density <span class="psub">divergence / window</span></div>
+      <canvas id="cvs-snp" class="pcvs"></canvas>
+    </div>
+    <div class="pdiv"></div>
+    <div class="psec">
+      <div class="ptitle">Genome Heatmap <span class="psub">5 tracks</span></div>
+      <canvas id="cvs-heat" class="pcvs"></canvas>
+    </div>
+    <div class="pdiv"></div>
+    <div class="psec">
+      <div class="ptitle">Circos Ring <span class="psub">genome topology</span></div>
+      <canvas id="cvs-circ" class="pcvs"></canvas>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: Dot Plot + Alignment + Synteny -->
+  <div id="panel-right" class="hud-panel">
+    <div class="psec">
+      <div class="ptitle">Dot Matrix <span class="psub">alignment path</span></div>
+      <canvas id="cvs-dot" class="pcvs"></canvas>
+    </div>
+    <div class="pdiv"></div>
+    <div class="psec" style="padding-bottom:12px">
+      <div class="ptitle">Sequence Alignment <span class="psub">peak divergence</span></div>
+      <div id="align-view"></div>
+    </div>
+  </div>
+
+  <!-- Bottom-left stats -->
   <div id="hud-stats">
     <div id="hud-identity">—</div>
     <div id="hud-identity-label">Identity</div>
@@ -178,67 +207,62 @@ canvas.dragging { cursor:grabbing; }
     <div class="stat-row stat-gap"      id="stat-g">—</div>
   </div>
 
+  <!-- Bottom-right legend -->
   <div id="hud-legend">
-    <div class="legend-item" id="tog-match" data-type="match">
+    <div class="legend-item" id="tog-match">
       <span>Match</span>
       <span class="legend-dot" style="background:#7DEA13;box-shadow:0 0 8px #7DEA13"></span>
     </div>
-    <div class="legend-item" id="tog-mismatch" data-type="mismatch">
+    <div class="legend-item" id="tog-mismatch">
       <span>Mismatch</span>
       <span class="legend-dot" style="background:#ff5520;box-shadow:0 0 8px #ff5520"></span>
     </div>
-    <div class="legend-item" id="tog-gap" data-type="gap">
+    <div class="legend-item" id="tog-gap">
       <span>Gap</span>
       <span class="legend-dot" style="background:#7733dd;box-shadow:0 0 6px #7733dd"></span>
     </div>
     <div class="key-hint" id="toggle-all-hint">[D] &nbsp;toggle all</div>
   </div>
-</div>
+
+</div><!-- #hud -->
 
 <button id="load-btn">Load file</button>
 <div id="progress"></div>
 
 <script>
 // ─────────────────────────────────────────────────────────────────────────────
-// GLSL Shaders
+// GLSL — point cloud shader
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Morphs between sphere position (base) and random scatter position via uBlend.
-// gl_PointSize scales by device pixel ratio for retina sharpness.
 const VERT = `
   attribute vec3 scatterPos;
   uniform float uBlend;
   uniform float uSize;
   uniform float uDPR;
-
   void main() {
-    vec3 p     = mix(position, scatterPos, uBlend);
-    vec4 mv    = modelViewMatrix * vec4(p, 1.0);
+    vec3 p  = mix(position, scatterPos, uBlend);
+    vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_PointSize = uSize * uDPR;
     gl_Position  = projectionMatrix * mv;
   }
 `;
-
-// Exponential radial glow — bright white-hot core fading to point color.
 const FRAG = `
   uniform vec3  uColor;
   uniform float uOpacity;
-
   void main() {
-    float d = length(gl_PointCoord - vec2(0.5)) * 2.0; // 0=center, 1=edge
+    float d = length(gl_PointCoord - vec2(0.5)) * 2.0;
     if (d > 1.0) discard;
-    float s   = exp(-d * 2.6);                          // exponential falloff
-    vec3  col = mix(uColor, vec3(1.0), s * 0.48);       // white-hot core
+    float s   = exp(-d * 2.6);
+    vec3  col = mix(uColor, vec3(1.0), s * 0.48);
     gl_FragColor = vec4(col, s * uOpacity);
   }
 `;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Three.js — renderer, scene, camera
+// Three.js setup
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DPR = Math.min(window.devicePixelRatio, 2);
-
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(DPR);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -249,54 +273,38 @@ const scene  = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.01, 200);
 camera.position.set(0, 0, 3.2);
 
-// Pivot — the whole genome cloud rotates as one unit
 const pivot = new THREE.Group();
 pivot.rotation.x = -0.25;
 scene.add(pivot);
 
-// Distant star field for spatial context
-(function buildStars() {
-  const N = 1600, pos = new Float32Array(N * 3);
+// Star field
+(function() {
+  const N = 1600, buf = new Float32Array(N * 3);
   for (let i = 0; i < N; i++) {
-    const theta = Math.random() * Math.PI * 2;
-    const phi   = Math.acos(2 * Math.random() - 1);
-    const r     = 9 + Math.random() * 14;
-    pos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
-    pos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
-    pos[i*3+2] = r * Math.cos(phi);
+    const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1), r = 9 + Math.random() * 14;
+    buf[i*3] = r * Math.sin(ph) * Math.cos(th); buf[i*3+1] = r * Math.sin(ph) * Math.sin(th); buf[i*3+2] = r * Math.cos(ph);
   }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  scene.add(new THREE.Points(geo, new THREE.PointsMaterial({
-    color: 0xffffff, size: 0.025, transparent: true, opacity: 0.18,
-    sizeAttenuation: true, depthWrite: false,
-  })));
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(buf, 3));
+  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color:0xffffff, size:.025, transparent:true, opacity:.18, sizeAttenuation:true, depthWrite:false })));
 })();
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Hilbert curve utilities
+// Hilbert curve
 // ─────────────────────────────────────────────────────────────────────────────
 
 function hilbertD2XY(order, d) {
-  let x = 0, y = 0;
-  for (let s = 1; s < (1 << order); s <<= 1) {
-    const rx = (d >> 1) & 1, ry = (d ^ rx) & 1;
-    if (ry === 0) {
-      if (rx === 1) { x = s-1-x; y = s-1-y; }
-      [x, y] = [y, x];
-    }
-    x += s * rx;  y += s * ry;  d >>= 2;
+  let x=0,y=0;
+  for (let s=1; s<(1<<order); s<<=1) {
+    const rx=(d>>1)&1, ry=(d^rx)&1;
+    if (!ry) { if (rx) { x=s-1-x; y=s-1-y; } [x,y]=[y,x]; }
+    x+=s*rx; y+=s*ry; d>>=2;
   }
-  return [x, y];
+  return [x,y];
 }
-
 function buildHilbertLUT(order) {
-  const n = 1 << order, total = n * n;
-  const lut = new Int32Array(total * 2);
-  for (let d = 0; d < total; d++) {
-    const [x, y] = hilbertD2XY(order, d);
-    lut[d*2] = x;  lut[d*2+1] = y;
-  }
+  const n=1<<order, total=n*n, lut=new Int32Array(total*2);
+  for (let d=0;d<total;d++) { const [x,y]=hilbertD2XY(order,d); lut[d*2]=x; lut[d*2+1]=y; }
   return lut;
 }
 
@@ -305,252 +313,415 @@ function buildHilbertLUT(order) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const SPHERE_R = 1.18;
-
-// Per-type config
 const CFG = {
   match:    { color: new THREE.Color(0x7DEA13), size: 4.0, opacity: 0.70 },
   mismatch: { color: new THREE.Color(0xff5520), size: 7.0, opacity: 1.00 },
   gap:      { color: new THREE.Color(0x7733dd), size: 3.5, opacity: 0.55 },
 };
 
-let cloudObjects = {};   // type → THREE.Points
-let cloudMats    = {};   // type → ShaderMaterial (for uniform access)
-let edgeBlend    = 0;    // current morph value (0 = sphere, 1 = scattered)
-
-// Visibility toggle state
-const vis = { match: true, mismatch: true, gap: true };
+let cloudObjects = {}, cloudMats = {}, edgeBlend = 0;
+const vis = { match:true, mismatch:true, gap:true };
 
 function disposeAll() {
-  Object.values(cloudObjects).forEach(c => {
-    if (!c) return;
-    c.geometry.dispose();
-    c.material.dispose();
-    pivot.remove(c);
-  });
-  cloudObjects = {};  cloudMats = {};
+  Object.values(cloudObjects).forEach(c => { if(!c) return; c.geometry.dispose(); c.material.dispose(); pivot.remove(c); });
+  cloudObjects = {}; cloudMats = {};
 }
 
 function buildPointCloud(data) {
-  disposeAll();
-  edgeBlend = 0;
-
-  const positions = data.positions;
-  const posLen    = positions.length;
-  const ORDER = 7, GRID_N = 1 << ORDER, TOTAL = GRID_N * GRID_N;
-
+  disposeAll(); edgeBlend = 0;
+  const positions = data.positions, posLen = positions.length;
+  const ORDER=7, GRID_N=1<<ORDER, TOTAL=GRID_N*GRID_N;
   setProgress('Building Hilbert LUT…');
   const lut = buildHilbertLUT(ORDER);
-
-  // Count per type for pre-allocation
-  let nM = 0, nMM = 0, nG = 0;
-  for (let i = 0; i < posLen; i++) {
-    const t = positions[i].type;
-    if (t === 'match') nM++; else if (t === 'mismatch') nMM++; else nG++;
-  }
-
-  const sphereBuf  = { match: new Float32Array(nM*3),  mismatch: new Float32Array(nMM*3), gap: new Float32Array(nG*3) };
-  const scatterBuf = { match: new Float32Array(nM*3),  mismatch: new Float32Array(nMM*3), gap: new Float32Array(nG*3) };
-  const idx        = { match: 0,                        mismatch: 0,                        gap: 0 };
-
-  // Deterministic fast PRNG (xorshift32) for reproducible scatter
-  let seed = 0xdeadbeef;
-  const rand = () => {
-    seed ^= seed << 13;  seed ^= seed >> 17;  seed ^= seed << 5;
-    return (seed >>> 0) / 0x100000000;
-  };
-
+  let nM=0,nMM=0,nG=0;
+  for (let i=0;i<posLen;i++) { const t=positions[i].type; if(t==='match')nM++; else if(t==='mismatch')nMM++; else nG++; }
+  const sbuf={ match:new Float32Array(nM*3), mismatch:new Float32Array(nMM*3), gap:new Float32Array(nG*3) };
+  const scbuf={ match:new Float32Array(nM*3), mismatch:new Float32Array(nMM*3), gap:new Float32Array(nG*3) };
+  const idx={ match:0, mismatch:0, gap:0 };
+  let seed=0xdeadbeef;
+  const rand=()=>{ seed^=seed<<13; seed^=seed>>17; seed^=seed<<5; return (seed>>>0)/0x100000000; };
   setProgress('Mapping genome to sphere…');
-
-  for (let i = 0; i < posLen; i++) {
-    const cellIdx = Math.min(Math.floor(i * TOTAL / posLen), TOTAL - 1);
-    const gx = lut[cellIdx * 2], gy = lut[cellIdx * 2 + 1];
-
-    // Hilbert grid position → spherical coordinates
-    const u     = gx / GRID_N;           // longitude 0..1
-    const v     = gy / GRID_N;           // latitude  0..1
-    const theta = u * Math.PI * 2;
-    const phi   = v * Math.PI;
-    const sr    = SPHERE_R + (rand() - 0.5) * 0.025;
-
-    const sx = sr * Math.sin(phi) * Math.cos(theta);
-    const sy = sr * Math.cos(phi);
-    const sz = sr * Math.sin(phi) * Math.sin(theta);
-
-    // Scatter: random point in a larger sphere shell
-    const scatR     = 2.2 + rand() * 2.2;
-    const scatTheta = rand() * Math.PI * 2;
-    const scatPhi   = Math.acos(2 * rand() - 1);
-    const scx = scatR * Math.sin(scatPhi) * Math.cos(scatTheta);
-    const scy = scatR * Math.cos(scatPhi);
-    const scz = scatR * Math.sin(scatPhi) * Math.sin(scatTheta);
-
-    const type = positions[i].type;
-    const i3 = idx[type];
-    sphereBuf [type][i3]   = sx;   sphereBuf [type][i3+1] = sy;   sphereBuf [type][i3+2] = sz;
-    scatterBuf[type][i3]   = scx;  scatterBuf[type][i3+1] = scy;  scatterBuf[type][i3+2] = scz;
-    idx[type] += 3;
+  for (let i=0;i<posLen;i++) {
+    const ci=Math.min(Math.floor(i*TOTAL/posLen),TOTAL-1);
+    const gx=lut[ci*2], gy=lut[ci*2+1];
+    const u=gx/GRID_N, v=gy/GRID_N, theta=u*Math.PI*2, phi=v*Math.PI, sr=SPHERE_R+(rand()-.5)*.025;
+    const sx=sr*Math.sin(phi)*Math.cos(theta), sy=sr*Math.cos(phi), sz=sr*Math.sin(phi)*Math.sin(theta);
+    const scR=2.2+rand()*2.2, scT=rand()*Math.PI*2, scP=Math.acos(2*rand()-1);
+    const scx=scR*Math.sin(scP)*Math.cos(scT), scy=scR*Math.cos(scP), scz=scR*Math.sin(scP)*Math.sin(scT);
+    const t=positions[i].type, i3=idx[t];
+    sbuf[t][i3]=sx; sbuf[t][i3+1]=sy; sbuf[t][i3+2]=sz;
+    scbuf[t][i3]=scx; scbuf[t][i3+1]=scy; scbuf[t][i3+2]=scz;
+    idx[t]+=3;
   }
-
-  // Build a THREE.Points object per type
-  ['match', 'mismatch', 'gap'].forEach(type => {
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position',   new THREE.BufferAttribute(sphereBuf [type], 3));
-    geo.setAttribute('scatterPos', new THREE.BufferAttribute(scatterBuf[type], 3));
-
-    const c   = CFG[type];
-    const mat = new THREE.ShaderMaterial({
-      uniforms: {
-        uColor:   { value: c.color },
-        uOpacity: { value: c.opacity },
-        uBlend:   { value: 0.0 },
-        uSize:    { value: c.size },
-        uDPR:     { value: DPR },
-      },
-      vertexShader:   VERT,
-      fragmentShader: FRAG,
-      transparent:    true,
-      depthWrite:     false,
-      blending:       THREE.AdditiveBlending,
+  ['match','mismatch','gap'].forEach(type=>{
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.BufferAttribute(sbuf[type],3));
+    geo.setAttribute('scatterPos',new THREE.BufferAttribute(scbuf[type],3));
+    const c=CFG[type];
+    const mat=new THREE.ShaderMaterial({
+      uniforms:{ uColor:{value:c.color}, uOpacity:{value:c.opacity}, uBlend:{value:0}, uSize:{value:c.size}, uDPR:{value:DPR} },
+      vertexShader:VERT, fragmentShader:FRAG,
+      transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
     });
-
-    const pts = new THREE.Points(geo, mat);
-    pivot.add(pts);
-    cloudObjects[type] = pts;
-    cloudMats   [type] = mat;
+    const pts=new THREE.Points(geo,mat);
+    pivot.add(pts); cloudObjects[type]=pts; cloudMats[type]=mat;
   });
-
   setProgress('');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Click-drag rotation (with inertia)
+// Drag rotation
 // ─────────────────────────────────────────────────────────────────────────────
 
-let isDragging = false;
-let lastDragX  = 0, lastDragY = 0;
-let rotVelX    = 0, rotVelY   = 0;
+let isDragging=false, lastDX=0, lastDY=0, rotVelX=0, rotVelY=0;
+let mouseX=window.innerWidth/2, mouseY=window.innerHeight/2;
 
-renderer.domElement.addEventListener('mousedown', (e) => {
-  if (e.button !== 0) return;
-  isDragging = true;
-  lastDragX  = e.clientX;
-  lastDragY  = e.clientY;
-  rotVelX = rotVelY = 0;
+renderer.domElement.addEventListener('mousedown', e => {
+  if (e.button!==0) return;
+  isDragging=true; lastDX=e.clientX; lastDY=e.clientY; rotVelX=rotVelY=0;
   renderer.domElement.classList.add('dragging');
 });
-
-window.addEventListener('mouseup', () => {
-  isDragging = false;
-  renderer.domElement.classList.remove('dragging');
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Mouse tracking — drag rotation + edge dispersion
-// ─────────────────────────────────────────────────────────────────────────────
-
-let mouseX = window.innerWidth  / 2;
-let mouseY = window.innerHeight / 2;
-
-window.addEventListener('mousemove', (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-
+window.addEventListener('mouseup', ()=>{ isDragging=false; renderer.domElement.classList.remove('dragging'); });
+window.addEventListener('mousemove', e=>{
+  mouseX=e.clientX; mouseY=e.clientY;
   if (isDragging) {
-    const dx = e.clientX - lastDragX;
-    const dy = e.clientY - lastDragY;
-    rotVelY  = dx * 0.006;
-    rotVelX  = dy * 0.006;
-    pivot.rotation.y += rotVelY;
-    pivot.rotation.x += rotVelX;
-    lastDragX = e.clientX;
-    lastDragY = e.clientY;
+    const dx=e.clientX-lastDX, dy=e.clientY-lastDY;
+    rotVelY=dx*.006; rotVelX=dy*.006;
+    pivot.rotation.y+=rotVelY; pivot.rotation.x+=rotVelX;
+    lastDX=e.clientX; lastDY=e.clientY;
   }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Edge dispersion factor — 0 at center, 1 near window edges
+// Edge dispersion
 // ─────────────────────────────────────────────────────────────────────────────
 
-const EDGE_BAND = 0.18;   // transition starts when cursor is within 18% of any edge
-
+const EDGE_BAND = 0.18;
 function edgeFactor() {
-  const ex   = Math.min(mouseX / window.innerWidth,  1 - mouseX / window.innerWidth);
-  const ey   = Math.min(mouseY / window.innerHeight, 1 - mouseY / window.innerHeight);
-  const dist = Math.min(ex, ey);          // 0 at any edge, 0.5 at center
-  return 1 - Math.min(dist / EDGE_BAND, 1);
+  const ex=Math.min(mouseX/window.innerWidth, 1-mouseX/window.innerWidth);
+  const ey=Math.min(mouseY/window.innerHeight, 1-mouseY/window.innerHeight);
+  return 1-Math.min(Math.min(ex,ey)/EDGE_BAND, 1);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Visibility toggles
 // ─────────────────────────────────────────────────────────────────────────────
 
-function toggleType(type) {
-  vis[type] = !vis[type];
-  document.getElementById(`tog-${type}`).classList.toggle('muted', !vis[type]);
-}
-
-function toggleAll() {
-  const anyOn  = vis.match || vis.mismatch || vis.gap;
-  const newVal = !anyOn;
-  ['match', 'mismatch', 'gap'].forEach(t => {
-    vis[t] = newVal;
-    document.getElementById(`tog-${t}`).classList.toggle('muted', !newVal);
-  });
-}
-
-['match', 'mismatch', 'gap'].forEach(t => {
-  document.getElementById(`tog-${t}`).addEventListener('click', () => toggleType(t));
-});
+function toggleType(t){ vis[t]=!vis[t]; document.getElementById('tog-'+t).classList.toggle('muted',!vis[t]); }
+function toggleAll(){ const on=vis.match||vis.mismatch||vis.gap; ['match','mismatch','gap'].forEach(t=>{ vis[t]=!on; document.getElementById('tog-'+t).classList.toggle('muted',on); }); }
+['match','mismatch','gap'].forEach(t=>document.getElementById('tog-'+t).addEventListener('click',()=>toggleType(t)));
 document.getElementById('toggle-all-hint').addEventListener('click', toggleAll);
-window.addEventListener('keydown', (e) => {
-  if (e.key.toLowerCase() === 'd') toggleAll();
-});
+window.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='d') toggleAll(); });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Render loop
+// Animation loop
 // ─────────────────────────────────────────────────────────────────────────────
 
 function animate() {
   requestAnimationFrame(animate);
-
-  const hasClouds = Object.keys(cloudObjects).length > 0;
-
-  if (hasClouds) {
-    // Inertial rotation coast-down after drag release
-    if (!isDragging) {
-      rotVelX *= 0.92;
-      rotVelY *= 0.92;
-      pivot.rotation.x += rotVelX;
-      pivot.rotation.y += rotVelY;
-    }
-
-    // Smooth morph toward edge target
-    edgeBlend += (edgeFactor() - edgeBlend) * 0.04;
-
-    // Update uniforms
-    ['match', 'mismatch', 'gap'].forEach(t => {
-      const mat = cloudMats[t];
-      if (!mat) return;
-      mat.uniforms.uBlend.value = edgeBlend;
-      const targetOp = vis[t] ? CFG[t].opacity : 0.0;
-      mat.uniforms.uOpacity.value += (targetOp - mat.uniforms.uOpacity.value) * 0.08;
+  if (Object.keys(cloudObjects).length) {
+    if (!isDragging) { rotVelX*=.92; rotVelY*=.92; pivot.rotation.x+=rotVelX; pivot.rotation.y+=rotVelY; }
+    edgeBlend+=(edgeFactor()-edgeBlend)*.04;
+    ['match','mismatch','gap'].forEach(t=>{
+      const mat=cloudMats[t]; if(!mat) return;
+      mat.uniforms.uBlend.value=edgeBlend;
+      const tgt=vis[t]?CFG[t].opacity:0;
+      mat.uniforms.uOpacity.value+=(tgt-mat.uniforms.uOpacity.value)*.08;
     });
   }
-
   renderer.render(scene, camera);
 }
-
 animate();
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Resize
-// ─────────────────────────────────────────────────────────────────────────────
-
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+window.addEventListener('resize', ()=>{
+  camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Canvas helper — sets up DPR-scaled canvas
+// ─────────────────────────────────────────────────────────────────────────────
+
+function setupCanvas(id) {
+  const el = document.getElementById(id);
+  const W  = el.offsetWidth, H = el.offsetHeight;
+  const sc = window.devicePixelRatio || 1;
+  el.width  = Math.round(W * sc);
+  el.height = Math.round(H * sc);
+  const ctx = el.getContext('2d');
+  ctx.scale(sc, sc);
+  return { ctx, W, H };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SNP DENSITY PLOT  (left panel, top)
+// Divergence rate (mismatch + gap) per genome window — color-graded bar chart
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderSNPDensity(positions) {
+  const { ctx, W, H } = setupCanvas('cvs-snp');
+  const N = 42;
+  const winSize = Math.ceil(positions.length / N);
+  const bars = [];
+  for (let i = 0; i < N; i++) {
+    const s = i * winSize, e = Math.min(s + winSize, positions.length), n = e - s;
+    let div = 0;
+    for (let j = s; j < e; j++) if (positions[j].type !== 'match') div++;
+    bars.push(div / n);
+  }
+  const maxVal = Math.max(...bars) || 1;
+  const PAD = { t:4, b:14, l:2, r:2 };
+  const pw = W - PAD.l - PAD.r, ph = H - PAD.t - PAD.b, bw = pw / N;
+
+  // Subtle grid
+  ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = .5;
+  [.25,.5,.75,1].forEach(f => {
+    const y = PAD.t + ph * (1 - f);
+    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
+  });
+
+  bars.forEach((d, i) => {
+    const t   = d / maxVal;
+    const bh  = Math.max(1, t * ph);
+    const x   = PAD.l + i * bw;
+    const y   = PAD.t + ph - bh;
+    // Gradient: green → orange → red as divergence rises
+    const r = Math.round(125 + t * 130), g2 = Math.round(234 - t * 200), b = Math.round(19);
+    ctx.fillStyle = `rgba(${r},${g2},${b},${.5 + t * .45})`;
+    ctx.fillRect(x + .5, y, bw - 1, bh);
+  });
+
+  // Axis
+  ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.font = '7px "Share Tech Mono"';
+  ctx.textAlign = 'left';  ctx.fillText('0', PAD.l, H - 2);
+  ctx.textAlign = 'right'; ctx.fillText((positions.length / 1000).toFixed(0) + 'k bp', W - PAD.r, H - 2);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GENOME HEATMAP  (left panel, middle)
+// 5 metric tracks × N windows — each row has its own color ramp
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderHeatmap(positions) {
+  const { ctx, W, H } = setupCanvas('cvs-heat');
+  const N = 22;
+  const winSize = Math.ceil(positions.length / N);
+
+  const TRACKS = [
+    { label:'MATCH',  rgb:[125,234,19]  },
+    { label:'SNP',    rgb:[255, 85, 32] },
+    { label:'INDEL',  rgb:[119, 51,221] },
+    { label:'GC·A',   rgb:[ 0 ,200,255] },
+    { label:'GC·B',   rgb:[ 68,136,255] },
+  ];
+
+  const data = TRACKS.map(() => []);
+  for (let col = 0; col < N; col++) {
+    const s = col * winSize, e = Math.min(s + winSize, positions.length), n = e - s;
+    let m=0,mm=0,g=0,gca=0,gcb=0;
+    for (let j = s; j < e; j++) {
+      const p = positions[j];
+      if (p.type==='match') m++; else if (p.type==='mismatch') mm++; else g++;
+      if (p.a==='G'||p.a==='C') gca++;
+      if (p.b==='G'||p.b==='C') gcb++;
+    }
+    data[0].push(m/n); data[1].push(mm/n); data[2].push(g/n); data[3].push(gca/n); data[4].push(gcb/n);
+  }
+
+  const LBL = 40, rowH = H / TRACKS.length, colW = (W - LBL) / N;
+
+  TRACKS.forEach(({ label, rgb }, ri) => {
+    const [r,g,b] = rgb, y0 = ri * rowH;
+    ctx.fillStyle='rgba(255,255,255,.28)'; ctx.font='7.5px "Share Tech Mono"'; ctx.textAlign='right';
+    ctx.fillText(label, LBL - 3, y0 + rowH * .65);
+    data[ri].forEach((val, ci) => {
+      const alpha = .05 + Math.pow(val, .55) * .93;
+      ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+      ctx.fillRect(LBL + ci * colW + .5, y0 + .5, colW - 1, rowH - 1);
+    });
+    if (ri < TRACKS.length - 1) {
+      ctx.fillStyle='rgba(255,255,255,.04)'; ctx.fillRect(LBL, y0 + rowH - .5, W - LBL, 1);
+    }
+  });
+
+  // Column ticks at 0 / 50% / 100%
+  ctx.fillStyle='rgba(255,255,255,.15)'; ctx.font='6px "Share Tech Mono"';
+  [0, .5, 1].forEach(f => {
+    const x = LBL + f * (W - LBL);
+    ctx.textAlign = f===0?'left':f===1?'right':'center';
+    ctx.fillText(Math.round(f * positions.length / 1000) + 'k', x, H);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CIRCOS RING  (left panel, bottom)
+// Circular genome layout — match/mismatch/gap arcs around a ring
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderCircos(positions) {
+  const { ctx, W, H } = setupCanvas('cvs-circ');
+  const cx = W / 2, cy = H / 2 + 4;
+  const outerR = Math.min(W, H) / 2 - 6;
+  const innerR = outerR - 11;
+  const N = 180; // number of arc segments
+  const winSize = Math.ceil(positions.length / N);
+
+  // Dark backing ring
+  ctx.beginPath(); ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(125,234,19,.04)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(125,234,19,.12)'; ctx.lineWidth = .5; ctx.stroke();
+
+  // Arc segments
+  for (let i = 0; i < N; i++) {
+    const s = i * winSize, e = Math.min(s + winSize, positions.length), n = e - s;
+    let m=0,mm=0,gp=0;
+    for (let j = s; j < e; j++) {
+      const t = positions[j].type;
+      if (t==='match') m++; else if (t==='mismatch') mm++; else gp++;
+    }
+    const startAngle = (i / N) * Math.PI * 2 - Math.PI / 2;
+    const endAngle   = ((i + 1) / N) * Math.PI * 2 - Math.PI / 2;
+
+    // Base ring: dim green for match coverage
+    const matchFrac = m / n;
+    ctx.beginPath();
+    ctx.arc(cx, cy, (innerR + outerR) / 2, startAngle, endAngle);
+    ctx.strokeStyle = `rgba(125,234,19,${.08 + matchFrac * .28})`;
+    ctx.lineWidth = outerR - innerR - 1;
+    ctx.stroke();
+
+    // Mismatch spikes — radiate outward
+    if (mm > 0) {
+      const t = mm / n, ang = (startAngle + endAngle) / 2;
+      const r1 = outerR, r2 = outerR + t * 8;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(ang) * r1, cy + Math.sin(ang) * r1);
+      ctx.lineTo(cx + Math.cos(ang) * r2, cy + Math.sin(ang) * r2);
+      ctx.strokeStyle = `rgba(255,85,32,${.4 + t * .6})`;
+      ctx.lineWidth = Math.max(.8, (endAngle - startAngle) * r1 * .7);
+      ctx.stroke();
+    }
+
+    // Gap marks — dots on inner edge
+    if (gp > 0) {
+      const ang = (startAngle + endAngle) / 2;
+      ctx.beginPath();
+      ctx.arc(cx + Math.cos(ang) * (innerR - 3), cy + Math.sin(ang) * (innerR - 3), 1, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(119,51,221,.8)'; ctx.fill();
+    }
+  }
+
+  // Center label
+  ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.font = 'bold 7px "Share Tech Mono"';
+  ctx.textAlign = 'center';
+  ctx.fillText('CIRCOS', cx, cy - 3);
+  ctx.font = '6px "Share Tech Mono"';
+  ctx.fillStyle = 'rgba(125,234,19,.3)';
+  ctx.fillText((positions.length / 1000).toFixed(1) + 'k bp', cx, cy + 7);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DOT PLOT / SYNTENY MAP  (right panel, top)
+// X = pos in genome A, Y = pos in genome B — alignment path through sequence space
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderDotPlot(positions) {
+  const { ctx, W, H } = setupCanvas('cvs-dot');
+  const PAD = 14;
+  const pw = W - PAD * 2, ph = H - PAD * 2;
+
+  // Background
+  ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.clearRect(0, 0, W, H);
+
+  // Subtle grid
+  ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth = .5;
+  [.25,.5,.75].forEach(f => {
+    const x = PAD + f * pw, y = PAD + f * ph;
+    ctx.beginPath(); ctx.moveTo(x, PAD); ctx.lineTo(x, PAD + ph); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(PAD + pw, y); ctx.stroke();
+  });
+
+  // Reference diagonal (perfect synteny)
+  ctx.strokeStyle='rgba(255,255,255,.07)'; ctx.setLineDash([2,4]); ctx.lineWidth=.8;
+  ctx.beginPath(); ctx.moveTo(PAD, PAD+ph); ctx.lineTo(PAD+pw, PAD); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Compute actual seq positions and plot — sample for performance
+  let pA=0, pB=0;
+  const lenA = positions.filter(p=>p.a!=='-').length;
+  const lenB = positions.filter(p=>p.b!=='-').length;
+  const SAMPLE = Math.max(1, Math.floor(positions.length / 2400));
+
+  for (let i = 0; i < positions.length; i++) {
+    const p = positions[i];
+    if (p.a !== '-') pA++;
+    if (p.b !== '-') pB++;
+    if (i % SAMPLE !== 0) continue;
+    const px = PAD + (pA / lenA) * pw;
+    const py = PAD + ph - (pB / lenB) * ph;
+    if (p.type === 'match') {
+      ctx.fillStyle = 'rgba(125,234,19,.35)';
+      ctx.fillRect(px - .6, py - .6, 1.4, 1.4);
+    } else if (p.type === 'mismatch') {
+      ctx.fillStyle = 'rgba(255,85,32,.9)';
+      ctx.fillRect(px - 1.2, py - 1.2, 2.8, 2.8);
+    } else {
+      ctx.fillStyle = 'rgba(119,51,221,.85)';
+      ctx.fillRect(px - .8, py - .8, 2, 2);
+    }
+  }
+
+  // Axis labels
+  ctx.fillStyle='rgba(255,255,255,.22)'; ctx.font='6.5px "Share Tech Mono"';
+  ctx.textAlign='left'; ctx.fillText('B ↑', 1, PAD + 6);
+  ctx.textAlign='right'; ctx.fillText('A →', W - 1, H - 1);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEQUENCE ALIGNMENT VIEWER  (right panel, bottom)
+// Finds the highest-divergence window and renders base-by-base comparison
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderAlignment(positions, nameA, nameB) {
+  const WIN = 48, CHUNK = 24;
+  let maxDiv = 0, bestStart = 0;
+  for (let i = 0; i <= positions.length - WIN; i += WIN) {
+    let d = 0;
+    for (let j = i; j < i + WIN; j++) if (positions[j].type !== 'match') d++;
+    if (d > maxDiv) { maxDiv = d; bestStart = i; }
+  }
+  const slice = positions.slice(bestStart, bestStart + WIN);
+  const lblA  = (nameA || 'A').substring(0, 4).toUpperCase();
+  const lblB  = (nameB || 'B').substring(0, 4).toUpperCase();
+  const startPos = slice[0]?.pos || 0, endPos = slice[slice.length-1]?.pos || 0;
+
+  function basesHTML(chunk) {
+    let rowA='', rowM='', rowB='';
+    chunk.forEach(p => {
+      const isM=(p.type==='match'), isMM=(p.type==='mismatch');
+      const cA = isM?'rgba(125,234,19,.55)':isMM?'#ff5520':'#7733dd';
+      const cB = cA;
+      const mid = isM
+        ? `<span style="color:rgba(255,255,255,.2)">│</span>`
+        : isMM
+        ? `<span style="color:rgba(255,85,32,.6)">×</span>`
+        : `<span style="color:rgba(119,51,221,.6)">─</span>`;
+      rowA += `<span style="color:${cA}">${p.a||'─'}</span>`;
+      rowM += mid;
+      rowB += `<span style="color:${cB}">${p.b||'─'}</span>`;
+    });
+    return `
+      <div class="align-row"><span class="albl">${lblA}</span><span class="abases">${rowA}</span></div>
+      <div class="align-row"><span class="albl"></span><span class="abases">${rowM}</span></div>
+      <div class="align-row"><span class="albl">${lblB}</span><span class="abases">${rowB}</span></div>`;
+  }
+
+  let html = `<div class="align-pos">pos ${startPos.toLocaleString()} ── ${endPos.toLocaleString()}</div>`;
+  for (let s = 0; s < WIN; s += CHUNK) {
+    html += `<div class="align-block" style="margin-bottom:${s+CHUNK<WIN?'6px':'0'}">${basesHTML(slice.slice(s, s+CHUNK))}</div>`;
+  }
+  document.getElementById('align-view').innerHTML = html;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // File loading
@@ -558,81 +729,65 @@ window.addEventListener('resize', () => {
 
 function loadJSON(file) {
   const reader = new FileReader();
-  reader.onload = async (e) => {
+  reader.onload = async e => {
     try {
       setProgress('Parsing JSON…');
       await yieldFrame();
-
       const data = JSON.parse(e.target.result);
-      if (!data.positions || !Array.isArray(data.positions) || !data.meta) {
-        throw new Error("JSON must contain 'positions' array and 'meta' object.");
-      }
+      if (!data.positions || !data.meta) throw new Error("Invalid JSON.");
 
       buildPointCloud(data);
 
+      // Populate HUD text
       const s = data.meta.stats;
-      document.getElementById('sp-a').textContent      = data.meta.species_a.name.toUpperCase();
-      document.getElementById('sp-b').textContent      = data.meta.species_b.name.toUpperCase();
-      document.getElementById('hud-sub').textContent   =
-        (data.meta.label || data.meta.pair_id || '').replace(/_/g, ' ')
-        + '  ·  ' + data.meta.alignment_length.toLocaleString() + ' bp';
+      document.getElementById('sp-a').textContent = data.meta.species_a.name.toUpperCase();
+      document.getElementById('sp-b').textContent = data.meta.species_b.name.toUpperCase();
+      document.getElementById('hud-sub').textContent =
+        (data.meta.label||data.meta.pair_id||'').replace(/_/g,' ') + '  ·  ' + data.meta.alignment_length.toLocaleString() + ' bp';
       document.getElementById('hud-identity').textContent = s.identity_pct + '%';
       document.getElementById('stat-m') .textContent = '▪  ' + s.match    .toLocaleString() + '  match';
       document.getElementById('stat-mm').textContent = '▪  ' + s.mismatch .toLocaleString() + '  mismatch';
       document.getElementById('stat-g') .textContent = '▪  ' + s.gap      .toLocaleString() + '  gap';
 
+      // Show HUD + panels
       document.getElementById('drop-zone').classList.add('hidden');
       document.getElementById('hud').classList.remove('hidden');
       document.getElementById('load-btn').style.display = 'block';
       document.title = `GenomeDiff — ${data.meta.species_a.name} × ${data.meta.species_b.name}`;
 
-    } catch (err) {
+      // Render all panels (must happen after HUD is visible so offsetWidth/Height are real)
+      await yieldFrame();
+      setProgress('Rendering panels…');
+      const pos = data.positions;
+      renderSNPDensity(pos);
+      renderHeatmap(pos);
+      renderCircos(pos);
+      renderDotPlot(pos);
+      renderAlignment(pos, data.meta.species_a.name, data.meta.species_b.name);
       setProgress('');
-      alert('Failed to load: ' + err.message);
-    }
+
+    } catch (err) { setProgress(''); alert('Failed to load: ' + err.message); }
   };
   reader.readAsText(file);
 }
 
 // Event wiring
 const dz = document.getElementById('drop-zone');
-dz.addEventListener('click',    ()  => document.getElementById('file-input').click());
-dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('drag-over'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-dz.addEventListener('drop', (e) => {
-  e.preventDefault();  dz.classList.remove('drag-over');
-  const f = e.dataTransfer.files[0];  if (f) loadJSON(f);
-});
-document.getElementById('file-input').addEventListener('change', (e) => {
-  if (e.target.files[0]) loadJSON(e.target.files[0]);
-});
-
+dz.addEventListener('click',     ()  => document.getElementById('file-input').click());
+dz.addEventListener('dragover',  e   => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', ()  => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); const f=e.dataTransfer.files[0]; if(f) loadJSON(f); });
+document.getElementById('file-input').addEventListener('change', e => { if(e.target.files[0]) loadJSON(e.target.files[0]); });
 document.getElementById('load-btn').addEventListener('click', () => {
-  disposeAll();
-  rotVelX = rotVelY = edgeBlend = 0;
-  pivot.rotation.set(-0.25, 0, 0);
-  ['match', 'mismatch', 'gap'].forEach(t => {
-    vis[t] = true;
-    document.getElementById(`tog-${t}`).classList.remove('muted');
-  });
+  disposeAll(); rotVelX=rotVelY=edgeBlend=0; pivot.rotation.set(-.25,0,0);
+  ['match','mismatch','gap'].forEach(t=>{ vis[t]=true; document.getElementById('tog-'+t).classList.remove('muted'); });
   dz.classList.remove('hidden');
   document.getElementById('hud').classList.add('hidden');
-  document.getElementById('load-btn').style.display = 'none';
+  document.getElementById('load-btn').style.display='none';
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Utilities
-// ─────────────────────────────────────────────────────────────────────────────
-
-function setProgress(msg) {
-  const el = document.getElementById('progress');
-  el.textContent  = msg;
-  el.style.display = msg ? 'block' : 'none';
-}
-
-function yieldFrame() {
-  return new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
-}
+function setProgress(msg) { const el=document.getElementById('progress'); el.textContent=msg; el.style.display=msg?'block':'none'; }
+function yieldFrame() { return new Promise(r=>requestAnimationFrame(()=>setTimeout(r,0))); }
 </script>
 </body>
 </html>

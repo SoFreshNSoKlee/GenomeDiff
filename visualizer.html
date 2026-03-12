@@ -3,257 +3,267 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GenomeDiff — Hilbert Curve Visualizer</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<title>GenomeDiff — 3D Visualizer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  body {
-    background: #0d1117;
-    color: #e6edf3;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px 16px;
-    gap: 20px;
-  }
-
-  h1 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    color: #f0f6fc;
-  }
-
-  #subtitle {
-    font-size: 0.85rem;
-    color: #8b949e;
-    text-align: center;
-    max-width: 640px;
-  }
-
-  /* ── Controls ─────────────────────────────────────────────────────────── */
-  #controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-    align-items: center;
-  }
-
-  label { font-size: 0.8rem; color: #8b949e; }
-
-  .ctrl-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  input[type="file"],
-  input[type="range"],
-  select {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 6px;
-    color: #e6edf3;
-    padding: 4px 8px;
-    font-size: 0.8rem;
-    cursor: pointer;
-  }
-
-  input[type="color"] {
-    width: 36px;
-    height: 28px;
-    padding: 2px;
-    border-radius: 4px;
-    border: 1px solid #30363d;
-    background: #161b22;
-    cursor: pointer;
-  }
-
-  .color-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .color-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.78rem;
-    color: #8b949e;
-  }
-
-  button {
-    background: #238636;
-    border: none;
-    border-radius: 6px;
-    color: #fff;
-    cursor: pointer;
-    font-size: 0.82rem;
-    padding: 7px 16px;
-    transition: background 0.15s;
-  }
-  button:hover { background: #2ea043; }
-  button.secondary {
-    background: #21262d;
-    border: 1px solid #30363d;
-  }
-  button.secondary:hover { background: #30363d; }
-
-  /* ── Canvas wrapper ───────────────────────────────────────────────────── */
-  #canvas-wrap {
-    position: relative;
-    border: 1px solid #30363d;
-    border-radius: 8px;
+  html, body {
+    width: 100%; height: 100%;
     overflow: hidden;
-    cursor: crosshair;
+    background: #000;
+    font-family: 'SF Mono', 'Consolas', 'Monaco', 'Lucida Console', monospace;
   }
 
-  canvas { display: block; }
-
-  /* ── Tooltip ──────────────────────────────────────────────────────────── */
-  #tooltip {
-    position: fixed;
-    background: rgba(13,17,23,0.92);
-    border: 1px solid #30363d;
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 0.75rem;
-    line-height: 1.6;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.1s;
-    z-index: 100;
-    max-width: 240px;
-  }
-  #tooltip.visible { opacity: 1; }
-
-  /* ── Stats bar ────────────────────────────────────────────────────────── */
-  #stats {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-    font-size: 0.78rem;
-    color: #8b949e;
-  }
-  .stat-item strong { color: #e6edf3; }
-
-  /* ── Progress overlay ─────────────────────────────────────────────────── */
-  #progress {
-    font-size: 0.82rem;
-    color: #8b949e;
-    height: 20px;
-  }
-
+  /* ── Drop zone ──────────────────────────────────────────────────────────── */
   #drop-zone {
-    border: 2px dashed #30363d;
-    border-radius: 10px;
-    padding: 32px 48px;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 52px 72px;
     text-align: center;
-    color: #8b949e;
-    font-size: 0.9rem;
     cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-    min-width: 320px;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    transition: border-color 0.25s, box-shadow 0.25s;
+    user-select: none;
   }
-  #drop-zone.drag-over { border-color: #58a6ff; color: #58a6ff; }
+  #drop-zone:hover, #drop-zone.drag-over {
+    border-color: rgba(0,170,255,0.55);
+    box-shadow: 0 0 40px rgba(0,140,255,0.12);
+  }
+  #drop-zone h2 {
+    font-size: 1.05rem;
+    font-weight: 400;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 16px;
+  }
+  #drop-zone p {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.1em;
+    line-height: 2;
+  }
+  #drop-zone strong { color: rgba(255,255,255,0.55); font-weight: 400; }
   #drop-zone.hidden { display: none; }
+
+  /* ── HUD overlay ────────────────────────────────────────────────────────── */
+  #hud {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+  }
+  #hud.hidden { display: none; }
+
+  #hud-title {
+    position: absolute;
+    top: 32px; left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    white-space: nowrap;
+  }
+  #hud-title strong {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.82);
+    margin-bottom: 5px;
+  }
+  #hud-title span {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.28);
+    text-transform: uppercase;
+  }
+
+  #hud-stats {
+    position: absolute;
+    bottom: 36px; left: 36px;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    line-height: 2.1;
+    text-transform: uppercase;
+  }
+  .stat-identity { color: rgba(255,255,255,0.55); }
+  .stat-match    { color: rgba(0, 170, 255, 0.65); }
+  .stat-mismatch { color: rgba(255, 90, 30,  0.75); }
+  .stat-gap      { color: rgba(130, 60, 220, 0.6); }
+
+  #hud-legend {
+    position: absolute;
+    bottom: 36px; right: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+  .legend-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Hint (mouse instruction) ───────────────────────────────────────────── */
+  #hint {
+    position: absolute;
+    bottom: 36px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.18);
+    white-space: nowrap;
+    transition: opacity 1s;
+  }
+
+  /* ── Load button ────────────────────────────────────────────────────────── */
+  #load-btn {
+    position: fixed;
+    top: 26px; right: 30px;
+    z-index: 100;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: rgba(255,255,255,0.3);
+    padding: 7px 15px;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    pointer-events: all;
+    display: none;
+  }
+  #load-btn:hover {
+    border-color: rgba(0,170,255,0.45);
+    color: rgba(0,170,255,0.8);
+  }
+
+  /* ── Progress ───────────────────────────────────────────────────────────── */
+  #progress {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 200;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    display: none;
+  }
 </style>
 </head>
 <body>
 
-<h1>GenomeDiff — Hilbert Curve Visualizer</h1>
-<p id="subtitle">Load a JSON produced by <code>fetch_align.py</code> to render the alignment as a space-filling Hilbert curve.</p>
-
-<!-- ── File drop zone ──────────────────────────────────────────────────────── -->
+<!-- Drop zone -->
 <div id="drop-zone">
-  <div>Drop <strong>*.json</strong> here or click to browse</div>
-  <div style="margin-top:8px;font-size:0.75rem">Generated by fetch_align.py</div>
+  <h2>GenomeDiff</h2>
+  <p>Drop <strong>*.json</strong> here or click to browse<br>
+     <span style="opacity:0.6">generated by fetch_align.py</span></p>
   <input type="file" id="file-input" accept=".json" style="display:none">
 </div>
 
-<!-- ── Controls (hidden until data loaded) ────────────────────────────────── -->
-<div id="controls" style="display:none">
-  <div class="ctrl-group">
-    <label>Hilbert order (resolution)</label>
-    <select id="order-select">
-      <option value="6">Order 6  — 64×64 = 4096 cells</option>
-      <option value="7" selected>Order 7  — 128×128 = 16 384 cells</option>
-      <option value="8">Order 8  — 256×256 = 65 536 cells</option>
-      <option value="9">Order 9  — 512×512 = 262 144 cells</option>
-    </select>
+<!-- HUD -->
+<div id="hud" class="hidden">
+  <div id="hud-title">
+    <strong id="hud-label">—</strong>
+    <span id="hud-species">—</span>
   </div>
-
-  <div class="ctrl-group">
-    <label>Canvas size (px)</label>
-    <select id="size-select">
-      <option value="512">512</option>
-      <option value="800">800</option>
-      <option value="1024" selected>1024</option>
-      <option value="2048">2048 (print)</option>
-      <option value="4096">4096 (hi-res print)</option>
-    </select>
-  </div>
-
-  <div class="ctrl-group">
-    <label>Background</label>
-    <input type="color" id="bg-color" value="#0d1117">
-  </div>
-
-  <div class="color-row">
-    <div class="color-item">
-      <input type="color" id="match-color" value="#2196F3">
+  <div id="hud-stats"></div>
+  <div id="hud-legend">
+    <div class="legend-item">
       <span>Match</span>
+      <span class="legend-dot" style="background:#00aaff;box-shadow:0 0 7px #00aaff"></span>
     </div>
-    <div class="color-item">
-      <input type="color" id="mismatch-color" value="#FF5722">
+    <div class="legend-item">
       <span>Mismatch</span>
+      <span class="legend-dot" style="background:#ff5520;box-shadow:0 0 7px #ff5520"></span>
     </div>
-    <div class="color-item">
-      <input type="color" id="gap-color" value="#9E9E9E">
+    <div class="legend-item">
       <span>Gap</span>
+      <span class="legend-dot" style="background:#7733dd;box-shadow:0 0 5px #7733dd"></span>
     </div>
   </div>
-
-  <button id="render-btn">Re-render</button>
-  <button id="export-btn" class="secondary">Export PNG</button>
-  <button id="load-btn" class="secondary">Load different file</button>
+  <div id="hint">move mouse to rotate &nbsp;·&nbsp; center to stop</div>
 </div>
 
+<button id="load-btn">Load file</button>
 <div id="progress"></div>
 
-<!-- ── Canvas ──────────────────────────────────────────────────────────────── -->
-<div id="canvas-wrap" style="display:none">
-  <canvas id="main-canvas"></canvas>
-</div>
-
-<!-- ── Stats ───────────────────────────────────────────────────────────────── -->
-<div id="stats"></div>
-
-<!-- ── Tooltip ─────────────────────────────────────────────────────────────── -->
-<div id="tooltip"></div>
-
 <script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Three.js — renderer, scene, camera
+// ─────────────────────────────────────────────────────────────────────────────
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x000000, 1);
+renderer.domElement.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;';
+document.body.insertBefore(renderer.domElement, document.body.firstChild);
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.01, 200);
+camera.position.set(0, 0, 3.0);
+
+// All point clouds live inside this pivot so we rotate as one unit
+const pivot = new THREE.Group();
+pivot.rotation.x = -0.28;   // initial tilt to reveal 3D depth
+scene.add(pivot);
+
+// Subtle star-field background for depth context
+(function buildStarField() {
+  const N = 1800;
+  const pos = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi   = Math.acos(2 * Math.random() - 1);
+    const r     = 8 + Math.random() * 12;
+    pos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+    pos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+    pos[i*3+2] = r * Math.cos(phi);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const mat = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 0.03,
+    transparent: true,
+    opacity: 0.25,
+    sizeAttenuation: true,
+    depthWrite: false,
+  });
+  scene.add(new THREE.Points(geo, mat));
+})();
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Hilbert curve utilities
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Convert 1-D index d → (x, y) for a Hilbert curve of order `order`.
- * The grid is (2^order) × (2^order).
- */
 function hilbertD2XY(order, d) {
   let x = 0, y = 0;
   for (let s = 1; s < (1 << order); s <<= 1) {
     const rx = (d >> 1) & 1;
     const ry = (d ^ rx) & 1;
-    // rotate
     if (ry === 0) {
       if (rx === 1) { x = s - 1 - x; y = s - 1 - y; }
       [x, y] = [y, x];
@@ -265,14 +275,10 @@ function hilbertD2XY(order, d) {
   return [x, y];
 }
 
-/**
- * Pre-compute all (x, y) pairs for a given order.
- * Returns a Float32Array of length 2 * (2^order)^2.
- */
 function buildHilbertLUT(order) {
-  const n = 1 << order;           // cells per side
+  const n     = 1 << order;
   const total = n * n;
-  const lut = new Int32Array(total * 2);
+  const lut   = new Int32Array(total * 2);
   for (let d = 0; d < total; d++) {
     const [x, y] = hilbertD2XY(order, d);
     lut[d * 2]     = x;
@@ -282,293 +288,181 @@ function buildHilbertLUT(order) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Hex colour → [r, g, b]
+// Build & add point cloud from alignment data
 // ─────────────────────────────────────────────────────────────────────────────
-function hexToRGB(hex) {
-  const v = parseInt(hex.replace("#", ""), 16);
-  return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
+
+let clouds = [];
+
+function disposeCloud(c) {
+  if (!c) return;
+  c.geometry.dispose();
+  c.material.dispose();
+  pivot.remove(c);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Core renderer
-// ─────────────────────────────────────────────────────────────────────────────
+function buildPointCloud(data) {
+  clouds.forEach(disposeCloud);
+  clouds = [];
 
-let currentData = null;  // loaded JSON
-let lut = null;          // Hilbert LUT for current order
-let lastOrder = -1;
-
-async function render() {
-  if (!currentData) return;
-
-  const order     = parseInt(document.getElementById("order-select").value);
-  const canvasSize = parseInt(document.getElementById("size-select").value);
-  const bgHex     = document.getElementById("bg-color").value;
-  const matchHex  = document.getElementById("match-color").value;
-  const mmHex     = document.getElementById("mismatch-color").value;
-  const gapHex    = document.getElementById("gap-color").value;
-
-  const n = 1 << order;     // grid cells per side
-  const total = n * n;
-  const cellPx = canvasSize / n;  // pixels per cell (may be < 1)
-
-  setProgress("Building Hilbert LUT…");
-
-  // Rebuild LUT only when order changes
-  if (order !== lastOrder) {
-    await yieldFrame();
-    lut = buildHilbertLUT(order);
-    lastOrder = order;
-  }
-
-  setProgress("Painting canvas…");
-  await yieldFrame();
-
-  const canvas = document.getElementById("main-canvas");
-  canvas.width  = canvasSize;
-  canvas.height = canvasSize;
-
-  // Clamp display size to viewport
-  const maxDisplay = Math.min(window.innerWidth - 32, 900);
-  canvas.style.width  = Math.min(canvasSize, maxDisplay) + "px";
-  canvas.style.height = Math.min(canvasSize, maxDisplay) + "px";
-
-  const ctx = canvas.getContext("2d");
-
-  // ── Fill background ──────────────────────────────────────────────────────
-  ctx.fillStyle = bgHex;
-  ctx.fillRect(0, 0, canvasSize, canvasSize);
-
-  // ── Prepare ImageData for pixel-level painting ───────────────────────────
-  // For cellPx >= 1 we use ImageData for speed; otherwise fall through rects.
-  const useImageData = cellPx >= 1;
-  const imgData = useImageData ? ctx.createImageData(canvasSize, canvasSize) : null;
-  const px = useImageData ? imgData.data : null;
-
-  const [bgR, bgG, bgB]   = hexToRGB(bgHex);
-  const [mR, mG, mB]      = hexToRGB(matchHex);
-  const [mmR, mmG, mmB]   = hexToRGB(mmHex);
-  const [gR, gG, gB]      = hexToRGB(gapHex);
-
-  const positions = currentData.positions;
+  const positions = data.positions;
   const posLen    = positions.length;
 
-  // Each Hilbert cell covers multiple alignment positions when posLen > total,
-  // or one position per cell (with empty cells) when posLen <= total.
-  const stride = Math.max(1, Math.ceil(posLen / total));
+  const ORDER      = 7;          // 128×128 = 16 384 Hilbert cells
+  const GRID_N     = 1 << ORDER;
+  const TOTAL_CELLS = GRID_N * GRID_N;
 
-  let drawnCells = 0;
-  const CHUNK = 4096;
+  setProgress('Building Hilbert LUT…');
+  const lut = buildHilbertLUT(ORDER);
 
-  for (let cell = 0; cell < total; cell++) {
-    // ── Gather type for this cell (majority vote over stride positions) ────
-    let nMatch = 0, nMismatch = 0, nGap = 0;
-    const start = cell * stride;
-    const end   = Math.min(start + stride, posLen);
-
-    for (let i = start; i < end; i++) {
-      const t = positions[i].type;
-      if      (t === "match")    nMatch++;
-      else if (t === "mismatch") nMismatch++;
-      else                       nGap++;
-    }
-
-    // Empty cell (sequence shorter than grid)
-    if (nMatch + nMismatch + nGap === 0) {
-      drawnCells++;
-      if (drawnCells % CHUNK === 0) await yieldFrame();
-      continue;
-    }
-
-    // Dominant type
-    let r, g, b;
-    if (nMismatch >= nGap && nMismatch >= nMatch) {
-      [r, g, b] = [mmR, mmG, mmB];
-    } else if (nGap >= nMatch) {
-      [r, g, b] = [gR, gG, gB];
-    } else {
-      [r, g, b] = [mR, mG, mB];
-    }
-
-    // Intensity: proportion of the dominant type → brightness variation
-    const total_in_cell = nMatch + nMismatch + nGap;
-    const alpha = 0.4 + 0.6 * (Math.max(nMatch, nMismatch, nGap) / total_in_cell);
-
-    // ── Map cell index to (x, y) via LUT ──────────────────────────────────
-    const gx = lut[cell * 2];
-    const gy = lut[cell * 2 + 1];
-
-    if (useImageData) {
-      // Paint a cellPx × cellPx block into ImageData
-      const cpx = Math.max(1, Math.round(cellPx));
-      const px0 = Math.round(gx * cellPx);
-      const py0 = Math.round(gy * cellPx);
-      for (let dy = 0; dy < cpx && py0 + dy < canvasSize; dy++) {
-        for (let dx = 0; dx < cpx && px0 + dx < canvasSize; dx++) {
-          const idx = ((py0 + dy) * canvasSize + (px0 + dx)) * 4;
-          // Blend over background
-          const a = alpha;
-          px[idx]     = Math.round(bgR * (1 - a) + r * a);
-          px[idx + 1] = Math.round(bgG * (1 - a) + g * a);
-          px[idx + 2] = Math.round(bgB * (1 - a) + b * a);
-          px[idx + 3] = 255;
-        }
-      }
-    } else {
-      // Sub-pixel: draw a rect
-      ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
-      ctx.fillRect(gx * cellPx, gy * cellPx, cellPx, cellPx);
-    }
-
-    drawnCells++;
-    if (drawnCells % CHUNK === 0) await yieldFrame();
+  // --- count types for pre-allocation ---
+  let nM = 0, nMM = 0, nG = 0;
+  for (let i = 0; i < posLen; i++) {
+    const t = positions[i].type;
+    if (t === 'match') nM++;
+    else if (t === 'mismatch') nMM++;
+    else nG++;
   }
 
-  if (useImageData) {
-    ctx.putImageData(imgData, 0, 0);
+  const matchBuf    = new Float32Array(nM  * 3);
+  const mismatchBuf = new Float32Array(nMM * 3);
+  const gapBuf      = new Float32Array(nG  * 3);
+
+  let mi = 0, mmi = 0, gi = 0;
+
+  setProgress('Placing points in 3D…');
+
+  // Seeded pseudo-random for deterministic jitter (fast, good enough)
+  let seed = 0x9e3779b9;
+  function rand() {
+    seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5;
+    return (seed >>> 0) / 0xffffffff;
   }
 
-  // ── Legend overlay ────────────────────────────────────────────────────────
-  drawLegend(ctx, canvasSize, matchHex, mmHex, gapHex,
-             currentData.meta, bgHex);
+  for (let i = 0; i < posLen; i++) {
+    const cellIdx = Math.min(Math.floor(i * TOTAL_CELLS / posLen), TOTAL_CELLS - 1);
+    const gx = lut[cellIdx * 2];
+    const gy = lut[cellIdx * 2 + 1];
 
-  setProgress("");
-  document.getElementById("canvas-wrap").style.display = "block";
-}
+    // Hilbert grid → [-1, 1]
+    const nx = (gx / GRID_N) * 2.0 - 1.0;
+    const ny = (gy / GRID_N) * 2.0 - 1.0;
 
-function drawLegend(ctx, size, matchHex, mmHex, gapHex, meta, bgHex) {
-  const pad   = Math.round(size * 0.018);
-  const swatch = Math.round(size * 0.02);
-  const fontSize = Math.max(10, Math.round(size * 0.016));
-  const lineH = swatch + Math.round(size * 0.006);
+    // Z: smooth wave terrain — reveals 3D depth on rotation
+    const waveZ = 0.16 * Math.sin(nx * 3.6) * Math.cos(ny * 2.8)
+                + 0.06 * Math.cos(nx * 7.0 + ny * 5.0);
 
-  const items = [
-    { color: matchHex,  label: `Match  ${meta.stats.match.toLocaleString()}` },
-    { color: mmHex,     label: `Mismatch  ${meta.stats.mismatch.toLocaleString()}` },
-    { color: gapHex,    label: `Gap  ${meta.stats.gap.toLocaleString()}` },
-  ];
+    const type = positions[i].type;
 
-  const boxW = Math.round(size * 0.28);
-  const boxH = pad * 2 + items.length * lineH + Math.round(size * 0.02);
-  const x0 = size - boxW - pad;
-  const y0 = size - boxH - pad;
+    const SCALE = 1.28;
 
-  // Background panel
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  ctx.beginPath();
-  ctx.roundRect(x0, y0, boxW, boxH, 6);
-  ctx.fill();
+    if (type === 'match') {
+      const jx = (rand() - 0.5) * 0.004;
+      const jy = (rand() - 0.5) * 0.004;
+      const jz = (rand() - 0.5) * 0.012;
+      matchBuf[mi++] = nx * SCALE + jx;
+      matchBuf[mi++] = ny * SCALE + jy;
+      matchBuf[mi++] = waveZ + jz;
+    } else if (type === 'mismatch') {
+      const jx = (rand() - 0.5) * 0.010;
+      const jy = (rand() - 0.5) * 0.010;
+      const jz = (rand() - 0.5) * 0.018;
+      mismatchBuf[mmi++] = nx * SCALE + jx;
+      mismatchBuf[mmi++] = ny * SCALE + jy;
+      mismatchBuf[mmi++] = waveZ + jz + 0.10;   // float above the match plane
+    } else {
+      const jx = (rand() - 0.5) * 0.004;
+      const jy = (rand() - 0.5) * 0.004;
+      const jz = (rand() - 0.5) * 0.010;
+      gapBuf[gi++] = nx * SCALE + jx;
+      gapBuf[gi++] = ny * SCALE + jy;
+      gapBuf[gi++] = waveZ + jz - 0.05;          // slightly behind
+    }
+  }
 
-  // Title
-  ctx.fillStyle = "#e6edf3";
-  ctx.font = `600 ${fontSize}px sans-serif`;
-  ctx.fillText(meta.label, x0 + pad, y0 + pad + fontSize);
+  // Helper: build a THREE.Points object
+  function makeCloud(buf, hexColor, size, opacity) {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(buf, 3));
+    const mat = new THREE.PointsMaterial({
+      color:        hexColor,
+      size:         size,
+      transparent:  true,
+      opacity:      opacity,
+      blending:     THREE.AdditiveBlending,
+      depthWrite:   false,
+      sizeAttenuation: true,
+    });
+    return new THREE.Points(geo, mat);
+  }
 
-  // Species
-  ctx.font = `${Math.round(fontSize * 0.82)}px sans-serif`;
-  ctx.fillStyle = "#8b949e";
-  ctx.fillText(
-    `${meta.species_a.name} vs ${meta.species_b.name}`,
-    x0 + pad,
-    y0 + pad + fontSize * 2.0
-  );
+  // Match  — electric blue,  small, medium opacity → dense glow
+  const cMatch    = makeCloud(matchBuf,    0x0099ff, 0.0075, 0.70);
+  // Mismatch — hot orange,   larger → visually pops
+  const cMismatch = makeCloud(mismatchBuf, 0xff4400, 0.0170, 1.00);
+  // Gap      — deep violet,  tiny, subtle
+  const cGap      = makeCloud(gapBuf,      0x7722ee, 0.0060, 0.55);
 
-  // Swatches
-  items.forEach((item, i) => {
-    const rowY = y0 + pad + fontSize * 2.8 + i * lineH;
-    ctx.fillStyle = item.color;
-    ctx.fillRect(x0 + pad, rowY, swatch, swatch);
-    ctx.fillStyle = "#e6edf3";
-    ctx.font = `${fontSize}px sans-serif`;
-    ctx.fillText(item.label, x0 + pad + swatch + 6, rowY + swatch - 1);
-  });
+  pivot.add(cMatch);
+  pivot.add(cMismatch);
+  pivot.add(cGap);
+  clouds = [cMatch, cMismatch, cGap];
 
-  // Identity
-  const idY = y0 + pad + fontSize * 2.8 + items.length * lineH;
-  ctx.fillStyle = "#8b949e";
-  ctx.font = `${Math.round(fontSize * 0.85)}px sans-serif`;
-  ctx.fillText(
-    `Identity: ${meta.stats.identity_pct}%`,
-    x0 + pad,
-    idY + fontSize
-  );
+  setProgress('');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Tooltip on hover
+// Mouse-driven rotation
 // ─────────────────────────────────────────────────────────────────────────────
 
-let tooltipLUT = null;  // inverse map: (gx, gy) → cell index
+let mouseNX = 0, mouseNY = 0;  // normalized [-1, 1] from window center
+let velX    = 0, velY    = 0;  // current angular velocity (radians/frame)
 
-function buildTooltipLUT(order) {
-  const n = 1 << order;
-  // Map pixel → cell index via forward LUT
-  tooltipLUT = { order, n, lut };
-}
+document.addEventListener('mousemove', (e) => {
+  mouseNX = (e.clientX / window.innerWidth  - 0.5) * 2.0;
+  mouseNY = (e.clientY / window.innerHeight - 0.5) * 2.0;
+});
 
-document.getElementById("main-canvas").addEventListener("mousemove", (e) => {
-  if (!currentData || !lut) return;
+// Dead-zone radius so the very center truly stops spinning
+const DEAD_ZONE  = 0.06;
+const MAX_SPEED  = 0.028;   // rad/frame at mouse edge (~100°/sec at 60fps)
+const LERP_ACCEL = 0.055;   // how quickly velocity tracks the mouse
 
-  const canvas = document.getElementById("main-canvas");
-  const rect   = canvas.getBoundingClientRect();
-  const scaleX = canvas.width  / rect.width;
-  const scaleY = canvas.height / rect.height;
+// ─────────────────────────────────────────────────────────────────────────────
+// Render loop
+// ─────────────────────────────────────────────────────────────────────────────
 
-  const mx = (e.clientX - rect.left)  * scaleX;
-  const my = (e.clientY - rect.top)   * scaleY;
+function animate() {
+  requestAnimationFrame(animate);
 
-  const order = parseInt(document.getElementById("order-select").value);
-  const n     = 1 << order;
-  const cellPx = canvas.width / n;
+  if (clouds.length > 0) {
+    // Dead-zone: if mouse is very close to center, target velocity is 0
+    const dist = Math.sqrt(mouseNX * mouseNX + mouseNY * mouseNY);
+    const factor = dist < DEAD_ZONE ? 0 : (dist - DEAD_ZONE) / (1 - DEAD_ZONE);
 
-  const gx = Math.floor(mx / cellPx);
-  const gy = Math.floor(my / cellPx);
+    const targetY = (mouseNX / Math.max(dist, 0.001)) * factor * MAX_SPEED;
+    const targetX = (mouseNY / Math.max(dist, 0.001)) * factor * MAX_SPEED;
 
-  // Reverse-lookup: find cell index where lut[d*2]==gx && lut[d*2+1]==gy
-  // For performance, do a scanline search only over likely range
-  const total = n * n;
-  const posLen = currentData.positions.length;
-  const stride = Math.max(1, Math.ceil(posLen / total));
+    velY += (targetY - velY) * LERP_ACCEL;
+    velX += (targetX - velX) * LERP_ACCEL;
 
-  // Binary scan isn't straightforward on Hilbert; just walk lut in O(n²) once
-  // and cache. Use a reverse grid map.
-  if (!canvas._revMap || canvas._revOrder !== order) {
-    const revMap = new Int32Array(n * n).fill(-1);
-    for (let d = 0; d < total; d++) {
-      revMap[lut[d * 2 + 1] * n + lut[d * 2]] = d;
-    }
-    canvas._revMap   = revMap;
-    canvas._revOrder = order;
+    pivot.rotation.y += velY;
+    pivot.rotation.x += velX;
   }
 
-  const cell = canvas._revMap[gy * n + gx];
-  if (cell < 0) return;
-
-  const startPos = cell * stride;
-  const endPos   = Math.min(startPos + stride, posLen);
-  const sample   = currentData.positions[startPos];
-  if (!sample) return;
-
-  const tip = document.getElementById("tooltip");
-  tip.innerHTML =
-    `<strong>Position ${sample.pos.toLocaleString()}</strong><br>` +
-    `${currentData.meta.species_a.name}: <code>${sample.a}</code><br>` +
-    `${currentData.meta.species_b.name}: <code>${sample.b}</code><br>` +
-    `Type: <span style="color:${typeColor(sample.type)}">${sample.type}</span>`;
-
-  tip.style.left = (e.clientX + 14) + "px";
-  tip.style.top  = (e.clientY - 10) + "px";
-  tip.classList.add("visible");
-});
-
-document.getElementById("main-canvas").addEventListener("mouseleave", () => {
-  document.getElementById("tooltip").classList.remove("visible");
-});
-
-function typeColor(t) {
-  if (t === "match")    return document.getElementById("match-color").value;
-  if (t === "mismatch") return document.getElementById("mismatch-color").value;
-  return document.getElementById("gap-color").value;
+  renderer.render(scene, camera);
 }
+
+animate();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Resize
+// ─────────────────────────────────────────────────────────────────────────────
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // File loading
@@ -578,102 +472,75 @@ function loadJSON(file) {
   const reader = new FileReader();
   reader.onload = async (e) => {
     try {
-      setProgress("Parsing JSON…");
+      setProgress('Parsing JSON…');
       await yieldFrame();
-      currentData = JSON.parse(e.target.result);
-      validateData(currentData);
-      applyColorsFromData(currentData);
-      updateStats(currentData);
-      document.getElementById("drop-zone").classList.add("hidden");
-      document.getElementById("controls").style.display = "flex";
-      document.title = `GenomeDiff — ${currentData.meta.label}`;
-      document.getElementById("subtitle").textContent = currentData.meta.label;
-      await render();
+
+      const data = JSON.parse(e.target.result);
+      if (!data.positions || !Array.isArray(data.positions) || !data.meta) {
+        throw new Error("JSON must contain 'positions' array and 'meta' object.");
+      }
+
+      buildPointCloud(data);
+
+      // Populate HUD
+      const s = data.meta.stats;
+      document.getElementById('hud-label').textContent =
+        data.meta.label || (data.meta.pair_id || 'Genome Diff');
+      document.getElementById('hud-species').textContent =
+        `${data.meta.species_a.name}  ×  ${data.meta.species_b.name}`;
+
+      document.getElementById('hud-stats').innerHTML =
+        `<div class="stat-identity">${s.identity_pct}%&nbsp;&nbsp;identity</div>` +
+        `<div class="stat-match">▪ ${s.match.toLocaleString()}&nbsp;&nbsp;match</div>` +
+        `<div class="stat-mismatch">▪ ${s.mismatch.toLocaleString()}&nbsp;&nbsp;mismatch</div>` +
+        `<div class="stat-gap">▪ ${s.gap.toLocaleString()}&nbsp;&nbsp;gap</div>`;
+
+      document.getElementById('drop-zone').classList.add('hidden');
+      document.getElementById('hud').classList.remove('hidden');
+      document.getElementById('load-btn').style.display = 'block';
+      document.title = `GenomeDiff — ${data.meta.label || ''}`;
+
+      // Fade hint out after 5s
+      const hint = document.getElementById('hint');
+      setTimeout(() => { hint.style.opacity = '0'; }, 5000);
+
     } catch (err) {
-      alert("Failed to load JSON: " + err.message);
-      setProgress("");
+      setProgress('');
+      alert('Failed to load: ' + err.message);
     }
   };
   reader.readAsText(file);
 }
 
-function validateData(data) {
-  if (!data.positions || !Array.isArray(data.positions)) {
-    throw new Error("JSON must contain a 'positions' array.");
-  }
-  if (!data.meta) throw new Error("JSON must contain a 'meta' object.");
-}
-
-function applyColorsFromData(data) {
-  if (data.colors) {
-    if (data.colors.match)    document.getElementById("match-color").value    = data.colors.match;
-    if (data.colors.mismatch) document.getElementById("mismatch-color").value = data.colors.mismatch;
-    if (data.colors.gap)      document.getElementById("gap-color").value      = data.colors.gap;
-  }
-}
-
-function updateStats(data) {
-  const s = data.meta.stats;
-  document.getElementById("stats").innerHTML =
-    `<div class="stat-item">Alignment length: <strong>${data.meta.alignment_length.toLocaleString()} bp</strong></div>` +
-    `<div class="stat-item">Match: <strong style="color:${data.colors?.match||'#2196F3'}">${s.match.toLocaleString()}</strong></div>` +
-    `<div class="stat-item">Mismatch: <strong style="color:${data.colors?.mismatch||'#FF5722'}">${s.mismatch.toLocaleString()}</strong></div>` +
-    `<div class="stat-item">Gap: <strong style="color:${data.colors?.gap||'#9E9E9E'}">${s.gap.toLocaleString()}</strong></div>` +
-    `<div class="stat-item">Identity: <strong>${s.identity_pct}%</strong></div>`;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// PNG export — full canvas resolution
-// ─────────────────────────────────────────────────────────────────────────────
-
-document.getElementById("export-btn").addEventListener("click", async () => {
-  const canvas = document.getElementById("main-canvas");
-  if (canvas.width === 0) return;
-
-  setProgress("Preparing export…");
-  await yieldFrame();
-
-  const link = document.createElement("a");
-  const label = (currentData?.meta?.pair_id || "genomediff").replace(/\s+/g, "_");
-  link.download = `${label}_hilbert_${canvas.width}px.png`;
-  link.href = canvas.toDataURL("image/png");
-  link.click();
-  setProgress("");
-});
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Event wiring
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Drop zone
-const dropZone = document.getElementById("drop-zone");
-dropZone.addEventListener("click", () => document.getElementById("file-input").click());
-dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("drag-over"); });
-dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
-dropZone.addEventListener("drop", (e) => {
+const dropZone = document.getElementById('drop-zone');
+
+dropZone.addEventListener('click',    () => document.getElementById('file-input').click());
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', (e) => {
   e.preventDefault();
-  dropZone.classList.remove("drag-over");
-  const file = e.dataTransfer.files[0];
-  if (file) loadJSON(file);
+  dropZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f) loadJSON(f);
 });
 
-document.getElementById("file-input").addEventListener("change", (e) => {
+document.getElementById('file-input').addEventListener('change', (e) => {
   if (e.target.files[0]) loadJSON(e.target.files[0]);
 });
 
-document.getElementById("render-btn").addEventListener("click", render);
-
-document.getElementById("load-btn").addEventListener("click", () => {
-  document.getElementById("drop-zone").classList.remove("hidden");
-  document.getElementById("controls").style.display = "none";
-  document.getElementById("canvas-wrap").style.display = "none";
-  document.getElementById("stats").innerHTML = "";
-  currentData = null;
-});
-
-// Re-render when size/order changes
-["order-select", "size-select"].forEach(id => {
-  document.getElementById(id).addEventListener("change", render);
+document.getElementById('load-btn').addEventListener('click', () => {
+  clouds.forEach(disposeCloud);
+  clouds = [];
+  velX = velY = 0;
+  pivot.rotation.set(-0.28, 0, 0);
+  document.getElementById('drop-zone').classList.remove('hidden');
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('load-btn').style.display = 'none';
+  document.getElementById('hint').style.opacity = '1';
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -681,7 +548,9 @@ document.getElementById("load-btn").addEventListener("click", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function setProgress(msg) {
-  document.getElementById("progress").textContent = msg;
+  const el = document.getElementById('progress');
+  el.textContent  = msg;
+  el.style.display = msg ? 'block' : 'none';
 }
 
 function yieldFrame() {
